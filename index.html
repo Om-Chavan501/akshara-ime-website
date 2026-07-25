@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AksharaIME — Marathi typing for Mac</title>
+<meta name="description" content="Type Marathi in Devanagari on your Mac, in any app, using the phonetic scheme Baraha users already know.">
+<style>
+  :root {
+    --ink: #1c1917;
+    --paper: #fdfcfb;
+    --muted: #6b6560;
+    --accent: #ea7a2b;
+    --accent-ink: #ffffff;
+    --line: #e7e2dc;
+    --card: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f2efec;
+      --paper: #17140f;
+      --muted: #a39a90;
+      --accent: #ea7a2b;
+      --accent-ink: #17140f;
+      --line: #332c22;
+      --card: #201b14;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 0;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; }
+  .brand .mark {
+    width: 30px; height: 30px; border-radius: 8px; background: var(--accent);
+    color: var(--accent-ink); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem;
+  }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 24px; font-size: 0.95rem; }
+  nav a:hover { color: var(--ink); }
+
+  .hero { padding: 64px 0 48px; text-align: center; }
+  .hero h1 { font-size: 2.4rem; line-height: 1.2; margin: 0 0 16px; letter-spacing: -0.01em; }
+  .hero .devanagari { color: var(--accent); }
+  .hero p.lede { font-size: 1.15rem; color: var(--muted); max-width: 560px; margin: 0 auto 32px; }
+  .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 13px 26px; border-radius: 10px; font-weight: 600;
+    text-decoration: none; font-size: 1rem; border: 1px solid transparent;
+  }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { border-color: var(--line); color: var(--ink); }
+  .btn.disabled { opacity: 0.55; pointer-events: none; }
+  .note { color: var(--muted); font-size: 0.85rem; margin-top: 14px; }
+
+  section { padding: 48px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 1.5rem; margin: 0 0 8px; }
+  .section-sub { color: var(--muted); margin: 0 0 28px; }
+
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
+  .compare .card.bad { border-color: #e5a3a3; }
+  .compare .card.good { border-color: var(--accent); }
+  .tag { display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 3px 8px; border-radius: 999px; margin-bottom: 10px; }
+  .tag.bad { background: #fbeaea; color: #b23b3b; }
+  .tag.good { background: #fdeada; color: #a4551a; }
+  @media (prefers-color-scheme: dark) {
+    .tag.bad { background: #3a2323; color: #e08a8a; }
+    .tag.good { background: #3a2a18; color: #f0a868; }
+  }
+
+  .pricing-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 32px; text-align: center; max-width: 420px; margin: 0 auto;
+  }
+  .price { font-size: 2.6rem; font-weight: 800; margin: 8px 0 0; }
+  .price small { font-size: 1rem; font-weight: 500; color: var(--muted); }
+  .price-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 24px; }
+  .device-steps { text-align: left; margin: 20px 0; padding: 0; list-style: none; }
+  .device-steps li {
+    display: flex; justify-content: space-between; padding: 10px 0;
+    border-bottom: 1px solid var(--line); font-size: 0.95rem;
+  }
+  .device-steps li:last-child { border-bottom: none; }
+  .device-steps .n { color: var(--muted); }
+
+  .steps { counter-reset: step; padding: 0; list-style: none; }
+  .steps li {
+    counter-increment: step; position: relative; padding-left: 44px; margin-bottom: 22px;
+  }
+  .steps li::before {
+    content: counter(step); position: absolute; left: 0; top: -2px;
+    width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;
+  }
+  .steps h3 { margin: 0 0 4px; font-size: 1.02rem; }
+  .steps p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  .waitlist {
+    display: flex; gap: 10px; max-width: 420px; margin: 0 auto; flex-wrap: wrap;
+    justify-content: center;
+  }
+  .waitlist input {
+    flex: 1; min-width: 220px; padding: 12px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 0.95rem;
+  }
+
+  footer {
+    padding: 40px 0; border-top: 1px solid var(--line); color: var(--muted);
+    font-size: 0.85rem; text-align: center;
+  }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand"><span class="mark">अ</span> AksharaIME</div>
+      <nav>
+        <a href="#how-it-works">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Type Marathi on your Mac,<br><span class="devanagari">the way it should work</span>.</h1>
+      <p class="lede">
+        AksharaIME brings the exact Baraha-style phonetic typing scheme to macOS —
+        type <code>namaskAra</code>, get <strong>नमस्कार</strong>, in any app, right where you're typing.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary disabled" href="#">Download for Mac — coming soon</a>
+        <a class="btn ghost" href="#how-it-works">See how it works</a>
+      </div>
+      <p class="note">macOS 12 or later. Direct download — no App Store needed.</p>
+    </section>
+
+    <section id="why">
+      <h2>Why not just use what's already on your Mac?</h2>
+      <p class="section-sub">Because the existing options weren't really built for this.</p>
+      <div class="compare">
+        <div class="card bad">
+          <span class="tag bad">Apple's built-in Marathi keyboard</span>
+          <h3>Converts English to Marathi</h3>
+          <p>The transliteration is inconsistent and often just wrong for real words — you spend more time fixing it than typing.</p>
+        </div>
+        <div class="card bad">
+          <span class="tag bad">InScript</span>
+          <h3>A whole new keyboard layout</h3>
+          <p>Powerful once learned, but it's not phonetic — every key is a fresh thing to memorize, not something you already know.</p>
+        </div>
+      </div>
+      <div class="card good" style="margin-top:16px;">
+        <span class="tag good">AksharaIME</span>
+        <h3>Type the way Baraha users already do</h3>
+        <p>If you've typed Marathi with Baraha on Windows, you already know this scheme. AksharaIME brings the same phonetic rules to a real macOS input method — no new layout, no guessing.</p>
+      </div>
+    </section>
+
+    <section id="how-it-works">
+      <h2>How it works</h2>
+      <p class="section-sub">Three steps, and you're typing Marathi everywhere on your Mac.</p>
+      <ol class="steps">
+        <li>
+          <h3>Install AksharaIME</h3>
+          <p>A normal macOS installer. It adds AksharaIME as a selectable input source in System Settings — nothing else changes.</p>
+        </li>
+        <li>
+          <h3>Switch to it from the input menu</h3>
+          <p>Pick AksharaIME from the menu bar or with your usual input-switch shortcut, same as switching to any other keyboard layout.</p>
+        </li>
+        <li>
+          <h3>Type phonetically, anywhere</h3>
+          <p>TextEdit, Notes, Word, your browser, Slack — type <code>mahArAShTra</code> and get <strong>महाराष्ट्र</strong>, right in place, as you type.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="pricing">
+      <h2>Pricing</h2>
+      <p class="section-sub">One-time purchase. No subscription, ever.</p>
+      <div class="pricing-card">
+        <div class="price">₹1,499 <small>/ first device</small></div>
+        <div class="price-sub">≈ $17.99 outside India — shown in your local currency at checkout.</div>
+        <ul class="device-steps">
+          <li><span>1 device</span> <span class="n">₹1,499</span></li>
+          <li><span>2 devices</span> <span class="n">₹2,499</span></li>
+          <li><span>3 devices</span> <span class="n">₹3,499</span></li>
+          <li><span>4 devices</span> <span class="n">₹4,499</span></li>
+          <li><span>5 devices</span> <span class="n">₹5,499</span></li>
+        </ul>
+        <p class="note">Each additional device is a flat +₹1,000 — pick exactly how many Macs you need. Upgrade to more devices later, anytime, by paying just the difference.</p>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2>Questions</h2>
+      <div class="grid3">
+        <div class="card">
+          <h3>Is this the same as Baraha?</h3>
+          <p>It follows the same phonetic scheme real Baraha users already know, rebuilt from scratch for macOS. It is not Baraha software itself, and not affiliated with it.</p>
+        </div>
+        <div class="card">
+          <h3>Does it work offline?</h3>
+          <p>Yes — typing itself never needs the internet. Your Mac just needs to check in online occasionally to keep your license active.</p>
+        </div>
+        <div class="card">
+          <h3>Can I use it on more than one Mac?</h3>
+          <p>Yes — pick your device count at checkout, or add more devices later for the difference in price.</p>
+        </div>
+        <div class="card">
+          <h3>What if I'm not sure it's for me?</h3>
+          <p>A short free trial will be available at launch, so you can try real typing on your own Mac before buying.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="notify">
+      <h2>Not live yet — want to know when it is?</h2>
+      <p class="section-sub">Leave your email and we'll let you know the moment AksharaIME is available to download.</p>
+      <form class="waitlist" onsubmit="event.preventDefault(); alert('Waitlist isn\'t wired up yet — check back soon.');">
+        <input type="email" placeholder="you@example.com" required>
+        <button class="btn primary" type="submit">Notify me</button>
+      </form>
+    </section>
+
+    <footer>
+      AksharaIME — an independent macOS input method for Marathi. Not affiliated with Baraha or baraha.com.
+    </footer>
+  </div>
+</body>
+</html>
