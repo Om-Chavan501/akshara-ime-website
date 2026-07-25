@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AksharaIME — Marathi typing for Mac</title>
 <meta name="description" content="Type Marathi in Devanagari on your Mac, in any app, using natural phonetic spelling — no new layout to learn.">
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<script>
+  // TODO: replace with the real Paddle client-side token (Paddle dashboard -> Developer
+  // Tools -> Authentication -> Client-side tokens). This is a public, safe-to-embed token,
+  // NOT the API key -- different credential entirely.
+  const PADDLE_CLIENT_TOKEN = "REPLACE_WITH_PADDLE_CLIENT_SIDE_TOKEN";
+  const PRICE_IDS = {
+    1: "pri_01kycxftj624snq4t04tq6ck3c",
+    2: "pri_01kycxftydgj1bytm48tag0f0v",
+    3: "pri_01kycxfv7n7wvh92nt0r788z15",
+    4: "pri_01kycxfvgt6b4jnjx0gp8s7y5v",
+    5: "pri_01kycxfvx5c3jrs3dbezg9f3be",
+  };
+  window.addEventListener("DOMContentLoaded", () => {
+    Paddle.Environment.set("production");
+    Paddle.Initialize({ token: PADDLE_CLIENT_TOKEN });
+  });
+  function buy(devices) {
+    Paddle.Checkout.open({ items: [{ priceId: PRICE_IDS[devices], quantity: 1 }] });
+  }
+</script>
 <style>
   :root {
     --ink: #1c1917;
@@ -101,6 +122,12 @@
   }
   .device-steps li:last-child { border-bottom: none; }
   .device-steps .n { color: var(--muted); }
+  .buy-row {
+    display: flex; justify-content: space-between; width: 100%; padding: 0;
+    background: none; border: none; font: inherit; color: inherit; cursor: pointer;
+    text-align: left;
+  }
+  .buy-row:hover .n { color: var(--accent); }
 
   .steps { counter-reset: step; padding: 0; list-style: none; }
   .steps li {
@@ -113,15 +140,6 @@
   }
   .steps h3 { margin: 0 0 4px; font-size: 1.02rem; }
   .steps p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-
-  .waitlist {
-    display: flex; gap: 10px; max-width: 420px; margin: 0 auto; flex-wrap: wrap;
-    justify-content: center;
-  }
-  .waitlist input {
-    flex: 1; min-width: 220px; padding: 12px 14px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 0.95rem;
-  }
 
   footer {
     padding: 40px 0; border-top: 1px solid var(--line); color: var(--muted);
@@ -137,6 +155,7 @@
       <nav>
         <a href="#how-it-works">How it works</a>
         <a href="#pricing">Pricing</a>
+        <a href="#install-guide">Install guide</a>
         <a href="#faq">FAQ</a>
       </nav>
     </header>
@@ -148,10 +167,10 @@
         type <code>namaskAra</code>, get <strong>नमस्कार</strong>, in any app, right where you're typing.
       </p>
       <div class="cta-row">
-        <a class="btn primary disabled" href="#">Download for Mac — coming soon</a>
+        <a class="btn primary" href="https://github.com/Om-Chavan501/akshara-ime-website/releases/download/v0.1/AksharaIME-Installer.pkg">Download for Mac (early access)</a>
         <a class="btn ghost" href="#how-it-works">See how it works</a>
       </div>
-      <p class="note">macOS 12 or later. Direct download — no App Store needed.</p>
+      <p class="note">macOS 12 or later. Direct download — no App Store needed. Not yet notarized by Apple — see the install guide below.</p>
     </section>
 
     <section id="why">
@@ -202,14 +221,37 @@
         <div class="price">₹1,499 <small>/ first device</small></div>
         <div class="price-sub">≈ $17.99 outside India — shown in your local currency at checkout.</div>
         <ul class="device-steps">
-          <li><span>1 device</span> <span class="n">₹1,499</span></li>
-          <li><span>2 devices</span> <span class="n">₹2,499</span></li>
-          <li><span>3 devices</span> <span class="n">₹3,499</span></li>
-          <li><span>4 devices</span> <span class="n">₹4,499</span></li>
-          <li><span>5 devices</span> <span class="n">₹5,499</span></li>
+          <li><button class="buy-row" onclick="buy(1)"><span>1 device</span> <span class="n">₹1,499 →</span></button></li>
+          <li><button class="buy-row" onclick="buy(2)"><span>2 devices</span> <span class="n">₹2,499 →</span></button></li>
+          <li><button class="buy-row" onclick="buy(3)"><span>3 devices</span> <span class="n">₹3,499 →</span></button></li>
+          <li><button class="buy-row" onclick="buy(4)"><span>4 devices</span> <span class="n">₹4,499 →</span></button></li>
+          <li><button class="buy-row" onclick="buy(5)"><span>5 devices</span> <span class="n">₹5,499 →</span></button></li>
         </ul>
         <p class="note">Each additional device is a flat +₹1,000 — pick exactly how many Macs you need. Upgrade to more devices later, anytime, by paying just the difference.</p>
       </div>
+    </section>
+
+    <section id="install-guide">
+      <h2>Setting up after you buy</h2>
+      <p class="section-sub">This is an early-access build, so a couple of one-time steps aren't automated yet — here's exactly what to do.</p>
+      <ol class="steps">
+        <li>
+          <h3>Download and run the installer</h3>
+          <p>It isn't notarized by Apple yet, so macOS will likely warn about an "unidentified developer." Right-click the installer and choose <b>Open</b> once to get past that — this is expected, not a sign something's wrong.</p>
+        </li>
+        <li>
+          <h3>Log out and back in (or restart)</h3>
+          <p>This is a one-time macOS requirement, not optional — AksharaIME won't be selectable as a keyboard until you do this once after installing.</p>
+        </li>
+        <li>
+          <h3>Add AksharaIME in System Settings</h3>
+          <p>Go to <b>System Settings → Keyboard → Input Sources → Edit… → +</b>, find <b>AksharaIME</b> under English (or search "akshara"), and add it.</p>
+        </li>
+        <li>
+          <h3>Sign in and activate this Mac</h3>
+          <p>Open <b>AksharaIME Companion</b> from your Applications folder, sign in with the email you used to buy, and activate this Mac. You're set — switch to AksharaIME from the input menu and start typing.</p>
+        </li>
+      </ol>
     </section>
 
     <section id="faq">
@@ -229,19 +271,11 @@
         </div>
         <div class="card">
           <h3>What if I'm not sure it's for me?</h3>
-          <p>A short free trial will be available at launch, so you can try real typing on your own Mac before buying.</p>
+          <p>This is an early-access build — reach out before buying if you'd like to see it in action first.</p>
         </div>
       </div>
     </section>
 
-    <section id="notify">
-      <h2>Not live yet — want to know when it is?</h2>
-      <p class="section-sub">Leave your email and we'll let you know the moment AksharaIME is available to download.</p>
-      <form class="waitlist" onsubmit="event.preventDefault(); alert('Waitlist isn\'t wired up yet — check back soon.');">
-        <input type="email" placeholder="you@example.com" required>
-        <button class="btn primary" type="submit">Notify me</button>
-      </form>
-    </section>
 
     <footer>
       AksharaIME — an independent macOS input method for Marathi.
