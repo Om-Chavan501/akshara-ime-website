@@ -22,7 +22,15 @@
     Paddle.Initialize({ token: PADDLE_CLIENT_TOKEN });
   });
   function buy(devices) {
-    Paddle.Checkout.open({ items: [{ priceId: PRICE_IDS[devices], quantity: 1 }] });
+    Paddle.Checkout.open({
+      items: [{ priceId: PRICE_IDS[devices], quantity: 1 }],
+      // Without a successUrl the overlay just sits there after payment and the buyer is
+      // left with no confirmation, no download and no idea which email their license went
+      // to. Paddle appends `_ptxn=<transaction id>` to this URL, which success.html uses
+      // to look the order up. This also rescues the UPI flow, where the hosted bank
+      // confirmation window never hands control back to the overlay at all.
+      settings: { successUrl: "https://akshara-ime.com/success.html" },
+    });
   }
 </script>
 <style>

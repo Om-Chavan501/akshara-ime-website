@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thanks for your purchase — AksharaIME</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --ink: #1c1917;
+    --paper: #fdfcfb;
+    --muted: #6b6560;
+    --accent: #ea7a2b;
+    --accent-ink: #ffffff;
+    --line: #e7e2dc;
+    --card: #ffffff;
+    --ok: #2f7d4f;
+    --warn-bg: #fdf3e3;
+    --warn-line: #e6c48a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f2efec;
+      --paper: #17140f;
+      --muted: #a39a90;
+      --accent: #ea7a2b;
+      --accent-ink: #17140f;
+      --line: #332c22;
+      --card: #201b14;
+      --ok: #6fbf8e;
+      --warn-bg: #2b2114;
+      --warn-line: #5c4520;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; padding: 24px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem;
+    text-decoration: none; color: var(--ink); }
+  .brand .mark {
+    width: 30px; height: 30px; border-radius: 8px; background: var(--accent);
+    color: var(--accent-ink); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem;
+  }
+
+  .head { padding: 48px 0 8px; text-align: center; }
+  .head h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .head p { color: var(--muted); margin: 0; }
+  .tick {
+    width: 54px; height: 54px; border-radius: 50%; background: var(--accent);
+    color: var(--accent-ink); display: flex; align-items: center; justify-content: center;
+    font-size: 1.7rem; margin: 0 auto 18px;
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px; margin: 28px 0;
+  }
+  .row { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0;
+    border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+  .row:last-child { border-bottom: none; }
+  .row .k { color: var(--muted); }
+  .row .v { font-weight: 600; text-align: right; word-break: break-all; }
+
+  .email-check { background: var(--warn-bg); border: 1px solid var(--warn-line);
+    border-radius: 12px; padding: 18px; margin: 24px 0; }
+  .email-check h3 { margin: 0 0 6px; font-size: 1rem; }
+  .email-check p { margin: 0; font-size: 0.92rem; color: var(--muted); }
+  .email-check .addr { font-weight: 700; color: var(--ink); font-size: 1.05rem;
+    word-break: break-all; display: block; margin: 8px 0; }
+
+  ol.steps { padding-left: 20px; margin: 0; }
+  ol.steps li { margin-bottom: 14px; }
+  ol.steps li:last-child { margin-bottom: 0; }
+
+  .btn { display: inline-block; padding: 13px 26px; border-radius: 10px; font-weight: 600;
+    text-decoration: none; font-size: 1rem; border: 1px solid transparent; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { border-color: var(--line); color: var(--ink); }
+  .center { text-align: center; }
+
+  .state { text-align: center; padding: 40px 0; color: var(--muted); }
+  .hidden { display: none; }
+
+  code { background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    padding: 1px 6px; font-size: 0.88em; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 24px 0 40px;
+    color: var(--muted); font-size: 0.85rem; text-align: center; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <a class="brand" href="index.html"><span class="mark">अ</span> AksharaIME</a>
+  </header>
+
+  <!-- Shown while the transaction is being confirmed server-side. -->
+  <div id="loading" class="state">Confirming your purchase…</div>
+
+  <!-- Shown if we cannot confirm the purchase. Deliberately reassuring: a failure here
+       means our lookup failed, NOT that their payment failed. -->
+  <div id="error" class="state hidden">
+    <h1>We couldn't load your order details</h1>
+    <p id="error-detail"></p>
+    <p>
+      If your payment went through, your license is already created — this page just
+      couldn't display it. Sign in with the email you used at checkout, or contact
+      <a href="mailto:om.chavan501@gmail.com">om.chavan501@gmail.com</a>.
+    </p>
+  </div>
+
+  <main id="content" class="hidden">
+    <div class="head">
+      <div class="tick">✓</div>
+      <h1>Thank you — you're all set</h1>
+      <p>Your payment went through and your license has been created.</p>
+    </div>
+
+    <div class="card">
+      <div class="row"><span class="k">Product</span><span class="v" id="v-product">AksharaIME</span></div>
+      <div class="row"><span class="k">Devices</span><span class="v" id="v-devices">—</span></div>
+      <div class="row"><span class="k">Amount paid</span><span class="v" id="v-amount">—</span></div>
+      <div class="row"><span class="k">Order</span><span class="v" id="v-order">—</span></div>
+    </div>
+
+    <!-- The single most important thing on this page. The license is attached to whatever
+         email was typed into Paddle's checkout form; a typo there creates a license on an
+         address nobody can sign in to. Surfacing it here is what makes that recoverable. -->
+    <div class="email-check">
+      <h3>Your license is attached to this email</h3>
+      <span class="addr" id="v-email">—</span>
+      <p>
+        You'll sign in to AksharaIME Companion with this address.
+        <strong>If that's not right</strong> — a typo, or the wrong address —
+        <a id="fix-email" href="#">tell us and we'll move your license</a>. Nothing is lost.
+      </p>
+    </div>
+
+    <h2>What to do next</h2>
+    <ol class="steps">
+      <li>
+        <strong>Download and run the installer.</strong>
+        <div class="center" style="margin: 14px 0;">
+          <a class="btn primary" id="download-link"
+             href="https://github.com/Om-Chavan501/akshara-ime-website/releases/download/v0.1/AksharaIME-Installer.pkg">
+            Download AksharaIME for Mac
+          </a>
+        </div>
+      </li>
+      <li>
+        <strong>Get past the security warning.</strong> AksharaIME isn't notarized by Apple
+        yet, so macOS will say it can't verify the developer. Click <b>Done</b>, then open
+        <b>System Settings → Privacy &amp; Security</b>, scroll down, and click
+        <b>Open Anyway</b>.
+      </li>
+      <li>
+        <strong>Log out and back in</strong> (or restart). macOS only picks up newly
+        installed input methods after a login cycle.
+      </li>
+      <li>
+        <strong>Add the input source.</strong> <b>System Settings → Keyboard → Input
+        Sources → +</b>, then find <b>AksharaIME</b> under English.
+      </li>
+      <li>
+        <strong>Open AksharaIME Companion and sign in</strong> with the email shown above.
+        You'll get a 6-digit code by email. Then click <b>Activate this Mac</b>.
+      </li>
+      <li>
+        <strong>Start typing.</strong> Switch to AksharaIME in the menu bar and type
+        <code>namaskaara</code> — you should get <b>नमस्कार</b>.
+      </li>
+    </ol>
+
+    <p class="center" style="margin-top: 32px;">
+      <a class="btn ghost" href="index.html#install-guide">Full installation guide</a>
+    </p>
+  </main>
+
+  <footer>
+    Questions? <a href="mailto:om.chavan501@gmail.com">om.chavan501@gmail.com</a>
+    <br><br>
+    <a href="terms.html">Terms of Service</a> ·
+    <a href="privacy.html">Privacy Policy</a> ·
+    <a href="refund.html">Refund Policy</a>
+  </footer>
+
+</div>
+
+<script>
+  // Public anon key -- safe to embed, it only permits what RLS and the function allow.
+  const SUPABASE_URL = "https://vsckavugkyeoanbygpqt.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzY2thdnVna3llb2FuYnlncHF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5NjI2MDgsImV4cCI6MjEwMDUzODYwOH0.KY0LBXyfwfR-averiCtMGsOXXfWCA3UFSm4kaOu82r8";
+  const SUPPORT_EMAIL = "om.chavan501@gmail.com";
+
+  function show(id) { document.getElementById(id).classList.remove("hidden"); }
+  function hide(id) { document.getElementById(id).classList.add("hidden"); }
+  function setText(id, text) { document.getElementById(id).textContent = text; }
+
+  function fail(detail) {
+    hide("loading");
+    setText("error-detail", detail || "");
+    show("error");
+  }
+
+  // Paddle appends `_ptxn` to the success URL it redirects to.
+  const transactionId = new URLSearchParams(location.search).get("_ptxn");
+
+  if (!transactionId) {
+    fail("No order reference was found in this page's address.");
+  } else {
+    fetch(
+      `${SUPABASE_URL}/functions/v1/order-status?transaction_id=${encodeURIComponent(transactionId)}`,
+      { headers: { apikey: SUPABASE_ANON_KEY } }
+    )
+      .then((r) => r.json().then((body) => ({ ok: r.ok, body })))
+      .then(({ ok, body }) => {
+        if (!ok) {
+          fail(body && body.error ? `Order lookup failed (${body.error}).` : "Order lookup failed.");
+          return;
+        }
+        if (!body.paid) {
+          fail("This order hasn't completed payment yet.");
+          return;
+        }
+
+        setText("v-devices", body.max_devices
+          ? `${body.max_devices} device${body.max_devices > 1 ? "s" : ""}`
+          : "—");
+
+        // Paddle returns money in minor units (paise/cents) as a string.
+        if (body.amount && body.currency) {
+          const major = (Number(body.amount) / 100).toFixed(2);
+          setText("v-amount", `${body.currency} ${major}`);
+        }
+
+        setText("v-order", transactionId);
+        setText("v-email", body.email || "—");
+
+        // Prefill a support mail with everything needed to fix it, so the buyer doesn't
+        // have to explain or dig out an order number.
+        const subject = encodeURIComponent("Wrong email on my AksharaIME order");
+        const bodyText = encodeURIComponent(
+          `My license went to the wrong email address.\n\n` +
+          `Order: ${transactionId}\n` +
+          `It was created for: ${body.email || "(unknown)"}\n` +
+          `Please move it to: \n`
+        );
+        document.getElementById("fix-email").href =
+          `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${bodyText}`;
+
+        hide("loading");
+        show("content");
+      })
+      .catch(() => fail("We couldn't reach the server to confirm your order."));
+  }
+</script>
+</body>
+</html>
