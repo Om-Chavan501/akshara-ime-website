@@ -24,10 +24,17 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # The example checker hits the real deployed transliterate function -- a genuine
-      # correctness gate, not a style lint. Every hardcoded/example word on the site is
-      # verified against the production engine before the build is allowed to ship. This is
-      # what would have caught `aamhii` and `maraaThii` automatically instead of by review.
+      # Both of these are correctness gates, not style lints -- each exists because the class
+      # of bug it catches is invisible to review and produces no error at build or runtime.
+      #
+      # A misspelt CSS custom property makes the browser drop the whole declaration, so the
+      # layout is quietly wrong on one property and nothing complains. `--space-5` (no such
+      # step) shipped to both the homepage and the support console this way.
+      - run: npm run verify:tokens
+      # The example checker hits the real deployed transliterate function: every hardcoded
+      # example word on the site is verified against the production engine before the build
+      # can ship. This is what would have caught `aamhii` and `maraaThii` automatically
+      # instead of by review.
       - run: npm run verify:examples
       - run: npm run build
       - uses: actions/configure-pages@v5

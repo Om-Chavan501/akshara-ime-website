@@ -58,14 +58,14 @@ import AdminConsole from "../components/AdminConsole.tsx";
   .adm-empty {
     color: var(--text-muted); font-size: var(--text-sm);
     background: var(--bg-sunken); border: 1px dashed var(--border);
-    border-radius: var(--radius); padding: var(--space-5); margin-bottom: var(--space-4);
+    border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-4);
   }
 
   /* Key/value rather than a table: two columns of short facts, and it reflows to one
      column on narrow screens without the horizontal scroll a table would need. */
   .kv {
     display: grid; grid-template-columns: max-content 1fr;
-    gap: var(--space-2) var(--space-5); margin: 0 0 var(--space-5);
+    gap: var(--space-2) var(--space-4); margin: 0 0 var(--space-4);
   }
   .kv dt { font-size: var(--text-sm); color: var(--text-muted); }
   .kv dd { margin: 0; font-size: var(--text-sm); word-break: break-all; }
@@ -85,7 +85,7 @@ import AdminConsole from "../components/AdminConsole.tsx";
     display: flex; justify-content: space-between; align-items: flex-start;
     gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-3);
   }
-  .lic-slots { font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-5); }
+  .lic-slots { font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-4); }
 
   .pill {
     display: inline-block; font-size: var(--text-xs); font-weight: 700;
@@ -103,14 +103,70 @@ import AdminConsole from "../components/AdminConsole.tsx";
   .adm-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
   .btn-sm { min-height: 38px; padding: calc(var(--space-2) + 2px) var(--space-4) calc(var(--space-2) - 2px); font-size: var(--text-sm); }
   .btn.full { width: 100%; }
+
+  /* Destructive buttons in a list are tonal, not solid. A support page is mostly rows of
+     things you *could* do to a customer; rendering each one as a solid red block is alarm
+     fatigue, and it makes the page read as more dangerous than it is. The weight belongs on
+     the confirmation, where the decision is actually made — so .sheet's confirm is solid. */
   .danger-btn {
-    background: var(--danger); color: #fff; border: 1px solid transparent;
+    background: var(--danger-bg); color: var(--danger);
+    border: 1px solid transparent;
     border-radius: var(--radius); font: inherit; font-weight: 600; cursor: pointer;
+    min-height: 38px;
+    padding: calc(var(--space-2) + 2px) var(--space-4) calc(var(--space-2) - 2px);
+    font-size: var(--text-sm);
+    transition: background var(--duration-fast) var(--ease-out);
   }
+  .danger-btn:hover:not(:disabled) { border-color: var(--danger); }
   .danger-btn:disabled { opacity: .55; cursor: not-allowed; }
+  .sheet-actions .danger-btn {
+    background: var(--danger-solid); color: var(--text-on-danger);
+  }
+  .sheet-actions .danger-btn:hover:not(:disabled) { filter: brightness(1.1); }
+
+  /* Dashboard */
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-3); margin-bottom: var(--space-4);
+  }
+  .stat {
+    background: var(--bg-raised); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: var(--space-4);
+  }
+  .stat-label {
+    font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-muted); margin: 0 0 var(--space-2);
+  }
+  .stat-value {
+    font-size: var(--text-xl); font-weight: 700; line-height: 1.15; margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-sub { font-size: var(--text-sm); color: var(--text-subtle); margin: var(--space-1) 0 0; }
+
+  .flags { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-4); }
+  .flag {
+    font-size: var(--text-sm); font-weight: 600;
+    background: var(--danger-bg); color: var(--danger);
+    border-radius: var(--radius-full); padding: var(--space-2) var(--space-4);
+  }
+
+  .cust-head h2 { margin-bottom: var(--space-2); word-break: break-word; }
+  /* The account id is reference data, not something to read. Small, monospace, copyable. */
+  .idchip {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    font-size: var(--text-xs); color: var(--text-subtle);
+    background: var(--bg-sunken); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 3px var(--space-2);
+    cursor: pointer; word-break: break-all; text-align: left;
+  }
+  .idchip:hover { color: var(--text-muted); border-color: var(--border-strong); }
+
+  .sep { margin: 0 0.45em; color: var(--text-subtle); }
+  .linkish.strong { font-weight: 600; color: var(--text); text-decoration: none; }
+  .linkish.strong:hover { color: var(--accent); text-decoration: underline; }
 
   .plain, .devlist { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
-  .devlist { margin-top: var(--space-5); }
+  .devlist { margin-top: var(--space-4); }
   .dev, .ord, .hist {
     display: flex; justify-content: space-between; align-items: center;
     gap: var(--space-4); flex-wrap: wrap;

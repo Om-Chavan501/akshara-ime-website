@@ -40,6 +40,21 @@ interface HistoryEntry {
   created_at: string;
 }
 
+interface Overview {
+  generated_at: string;
+  licenses: {
+    total: number; active: number; revoked: number; refunded: number;
+    expired: number; paid: number; seats_sold: number;
+  };
+  devices: { total: number; in_use: number; stale: number };
+  orders: {
+    total: number; last_7d: number; last_30d: number;
+    revenue_by_currency: Record<string, number>;
+  };
+  recent_orders: Order[];
+  recent_actions: (HistoryEntry & { target_email: string | null })[];
+}
+
 interface LookupResult {
   found: boolean;
   reason?: string;
@@ -89,6 +104,7 @@ export default function AdminConsole() {
   const [confirming, setConfirming] = useState<Pending | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [overview, setOverview] = useState<Overview | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -182,12 +198,26 @@ export default function AdminConsole() {
         setNotice((n) => `${n} (Warning: the audit record failed to write — note it manually.)`);
       }
       await lookup(result?.email, true);
+      loadOverview();
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setBusy(null);
     }
   }
+
+  /** The dashboard. Loaded once on sign-in, and refreshed after any action changes state. */
+  const loadOverview = useCallback(async () => {
+    try {
+      const { ok, body } = await callAdmin({ action: "overview" });
+      if (ok) setOverview(body);
+    } catch {
+      // A dashboard that fails to load must not block the search box below it — looking a
+      // customer up is the job that actually can't wait.
+    }
+  }, [callAdmin]);
+
+  useEffect(() => { if (session) loadOverview(); }, [session, loadOverview]);
 
   /**
    * `?q=…` prefills and runs a lookup, so a support ticket can carry a link straight to the
@@ -295,10 +325,17 @@ export default function AdminConsole() {
             {busy === "lookup" ? "Looking…" : "Look up"}
           </button>
         </div>
-        <p className="hint">
-          Either an email address or a Paddle transaction id — a transaction id resolves to
-          the account even when the customer can't tell you which address they used.
-        </p>
+        {result ? (
+          <button type="button" className="linkish"
+                  onClick={() => { setQuery(""); setResult(null); setError(null); setNotice(null); }}>
+            ← Back to overview
+          </button>
+        ) : (
+          <p className="hint">
+            Either an email address or a Paddle transaction id — a transaction id resolves to
+            the account even when the customer can't tell you which address they used.
+          </p>
+        )}
       </form>
 
       <div aria-live="polite">
@@ -306,17 +343,112 @@ export default function AdminConsole() {
         {notice && <p className="msg ok">{notice}</p>}
       </div>
 
+      {/* The dashboard answers "is anything wrong right now", so it steps aside the moment
+          the operator is looking at a specific customer — two competing sets of numbers on
+          screen is how the wrong one gets read. */}
+      <AnimatePresence mode="wait">
+        {!result && overview && (
+          <motion.div key="overview" {...fade}>
+            <div className="stats">
+              <Stat label="Active licences" value={overview.licenses.active}
+                    sub={`${overview.licenses.seats_sold} seat${overview.licenses.seats_sold === 1 ? "" : "s"} sold`} />
+              <Stat label="Devices in use" value={overview.devices.in_use}
+                    sub={`of ${overview.devices.total} ever activated`} />
+              <Stat label="Orders" value={overview.orders.total}
+                    sub={`${overview.orders.last_30d} in the last 30 days`} />
+              <Stat label="Revenue"
+                    value={Object.entries(overview.orders.revenue_by_currency)
+                      .map(([c, n]) => money(String(n), c)).join("  ") || "—"}
+                    sub="gross, before Paddle's fee" />
+            </div>
+
+            {/* Only shown when non-zero. A dashboard of permanent zeroes trains you to stop
+                reading it, and then the one that matters goes unnoticed. */}
+            {(overview.licenses.revoked > 0 || overview.licenses.refunded > 0 ||
+              overview.devices.stale > 0) && (
+              <div className="flags">
+                {overview.licenses.refunded > 0 &&
+                  <span className="flag">{overview.licenses.refunded} refunded</span>}
+                {overview.licenses.revoked > 0 &&
+                  <span className="flag">{overview.licenses.revoked} suspended</span>}
+                {overview.devices.stale > 0 &&
+                  <span className="flag" title="Holding a slot but no check-in for over a week">
+                    {overview.devices.stale} device{overview.devices.stale === 1 ? "" : "s"} not checking in
+                  </span>}
+              </div>
+            )}
+
+            <h2 className="adm-section-title">Recent orders</h2>
+            {overview.recent_orders.length === 0
+              ? <p className="adm-empty">No orders yet.</p>
+              : (
+                <section className="adm-card">
+                  <ul className="plain">
+                    {overview.recent_orders.map((o) => (
+                      <li className="ord" key={o.paddle_transaction_id ?? o.created_at}>
+                        <div>
+                          {/* Clicking through is the common next move, so the email is the
+                              control rather than something to select and re-paste. */}
+                          <button className="linkish strong"
+                                  onClick={() => { setQuery(o.email ?? ""); lookup(o.email ?? ""); }}>
+                            {o.email ?? "unknown"}
+                          </button>
+                          <p className="muted small">
+                            {fmt(o.created_at)}<Sep />{o.max_devices} device(s)
+                          </p>
+                        </div>
+                        <span>{money(o.amount, o.currency)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+            <h2 className="adm-section-title">Recent support actions</h2>
+            {overview.recent_actions.length === 0
+              ? <p className="adm-empty">Nothing has been actioned yet.</p>
+              : (
+                <section className="adm-card">
+                  <ul className="plain">
+                    {overview.recent_actions.map((h, i) => (
+                      <li className="hist" key={i}>
+                        <div>
+                          <strong>{h.action.replace(/_/g, " ")}</strong>
+                          {h.target_email && (
+                            <span className="muted small"><Sep />{h.target_email}</span>
+                          )}
+                          <p className="muted small">
+                            {fmt(h.created_at)}<Sep />{h.performed_by}
+                            {h.reason && <><Sep />“{h.reason}”</>}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {result && (
           <motion.div key={result.user_id} {...fade}>
 
             {/* ---- who ---- */}
             <section className="adm-card">
-              <h2>Customer</h2>
-              <dl className="kv">
-                <dt>Email</dt><dd>{result.email}</dd>
-                <dt>Account id</dt><dd className="mono">{result.user_id}</dd>
-              </dl>
+              <div className="cust-head">
+                <div>
+                  <h2>{result.email}</h2>
+                  {/* The account id is needed occasionally (correlating a log line) but it is
+                      not what an operator reads, so it sits underneath as a copyable chip
+                      rather than competing with the address for attention. */}
+                  <button className="idchip" title="Copy account id"
+                          onClick={() => navigator.clipboard?.writeText(result.user_id)}>
+                    {result.user_id}
+                  </button>
+                </div>
+              </div>
               <button
                 className="btn btn-ghost btn-sm"
                 disabled={busy === "resend"}
@@ -355,7 +487,10 @@ export default function AdminConsole() {
                       <span className={`pill pill-${lic.status}`}>{lic.status}</span>
                       <span className="pill pill-kind">{lic.kind}</span>
                     </div>
-                    <span className="muted small mono">{lic.id}</span>
+                    <button className="idchip" title="Copy licence id"
+                            onClick={() => navigator.clipboard?.writeText(lic.id)}>
+                      {lic.id}
+                    </button>
                   </div>
 
                   <p className="lic-slots">
@@ -446,7 +581,9 @@ export default function AdminConsole() {
                               <strong>{d.name ?? "Unnamed Mac"}</strong>
                               <p className="muted small">
                                 {state}
-                                {d.last_checkin_at && ` · checked in ${rel(d.last_checkin_at)}`}
+                                {d.last_checkin_at && (
+                                  <><Sep />checked in {rel(d.last_checkin_at)}</>
+                                )}
                               </p>
                             </div>
                             {!d.force_released_at && (
@@ -492,7 +629,9 @@ export default function AdminConsole() {
                       <li className="ord" key={o.paddle_transaction_id ?? o.created_at}>
                         <div>
                           <span className="mono small">{o.paddle_transaction_id ?? "—"}</span>
-                          <p className="muted small">{fmt(o.created_at)} · {o.max_devices} device(s)</p>
+                          <p className="muted small">
+                            {fmt(o.created_at)}<Sep />{o.max_devices} device(s)
+                          </p>
                         </div>
                         <span>{money(o.amount, o.currency)}</span>
                       </li>
@@ -516,8 +655,8 @@ export default function AdminConsole() {
                             <span className="muted small"> · {describe(h.detail)}</span>
                           )}
                           <p className="muted small">
-                            {fmt(h.created_at)} · {h.performed_by}
-                            {h.reason && ` · “${h.reason}”`}
+                            {fmt(h.created_at)}<Sep />{h.performed_by}
+                            {h.reason && <><Sep />“{h.reason}”</>}
                           </p>
                         </div>
                       </li>
@@ -643,6 +782,29 @@ function money(amount: string | null, currency: string | null) {
   } catch {
     return `${currency} ${(n / 100).toFixed(2)}`;
   }
+}
+
+function Stat({ label, value, sub }: {
+  label: string; value: number | string; sub?: string;
+}) {
+  return (
+    <div className="stat">
+      <p className="stat-label">{label}</p>
+      <p className="stat-value">{value}</p>
+      {sub && <p className="stat-sub">{sub}</p>}
+    </div>
+  );
+}
+
+/**
+ * The interpunct separator, as an element rather than a literal " · " in the text.
+ *
+ * Written inline it renders with its spacing visibly lopsided — the surrounding spaces are
+ * in the DOM but the glyph's side bearings in Anek Devanagari swallow the right one, so it
+ * reads as "Active ·checked in". Explicit margins don't depend on the font's metrics.
+ */
+function Sep() {
+  return <span className="sep" aria-hidden="true">·</span>;
 }
 
 function fmt(iso: string) {
