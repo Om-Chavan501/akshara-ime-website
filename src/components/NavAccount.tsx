@@ -44,10 +44,10 @@ export default function NavAccount() {
       .nav-acct {
         display: inline-flex; align-items: center; gap: var(--space-2);
         text-decoration: none; color: var(--text); font-size: var(--text-sm);
-        /* Symmetric on purpose -- this outer pill's "Account" label was never reported as
-           off. Only the single letter inside the small .nav-avatar circle below was. Nudging
-           this one too was a mistake: it moved a chip that was already correct. */
-        padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+        /* "Account" is plain text in a flex row exactly like every .btn label, so it has the
+           identical font-metric mispositioning -- reverting this to symmetric was wrong; the
+           text really does need the same downward nudge as buttons elsewhere. */
+        padding: calc(var(--space-2) + 2px) var(--space-3) calc(var(--space-2) - 2px) var(--space-2);
         border: 1px solid var(--border); border-radius: var(--radius-full);
         min-height: 38px;
       }
@@ -60,8 +60,9 @@ export default function NavAccount() {
         /* box-sizing:border-box (global) means padding eats into the fixed 24x24 footprint
            rather than growing it, so width still equals height and this stays a true circle
            -- the same asymmetric nudge as every other button, just expressed in absolute px
-           since this element has no existing padding to offset from. */
-        padding: 2px 0 0;
+           since this element has no existing padding to offset from. Bumped from 2px to 3px:
+           the letter was still reported sitting a little high at the smaller value. */
+        padding: 3px 0 0;
       }
       .nav-acct-ph { display: inline-block; width: 104px; height: 38px; }
     `}</style>
