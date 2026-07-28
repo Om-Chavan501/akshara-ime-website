@@ -1,0 +1,175 @@
+---
+import Base from "../layouts/Base.astro";
+import AdminConsole from "../components/AdminConsole.tsx";
+---
+{/* noindex, and deliberately not linked from anywhere in the site's navigation. That's
+    tidiness, not security — access is enforced server-side against an allowlist, so an
+    unauthorised visitor reaching this URL gets a form that refuses to do anything. */}
+<Base title="Support console — AksharaIME" noindex={true}>
+  <div class="wrap section adm-page">
+    <AdminConsole client:only="react" />
+  </div>
+</Base>
+
+<style is:global>
+  .adm-page { max-width: 720px; }
+
+  .adm h1 { margin-bottom: var(--space-2); }
+  .adm-lede { margin-bottom: var(--space-8); }
+
+  .adm-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: var(--space-4); margin-bottom: var(--space-8); flex-wrap: wrap;
+  }
+
+  .adm-card {
+    background: var(--bg-raised); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: var(--space-6);
+    margin-bottom: var(--space-4);
+  }
+  .adm-card h2 { font-size: var(--text-lg); margin-bottom: var(--space-4); }
+
+  .adm label {
+    display: block; font-size: var(--text-sm); font-weight: 600;
+    margin-bottom: var(--space-2);
+  }
+  .adm input {
+    width: 100%; padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-strong); border-radius: var(--radius);
+    background: var(--bg); color: var(--text);
+    font: inherit; font-size: var(--text-base);
+    min-height: 46px;
+  }
+  .adm input:focus-visible { border-color: var(--accent); }
+
+  .adm-search { margin-bottom: var(--space-6); }
+  .adm-search-row { display: flex; gap: var(--space-3); }
+  .adm-search-row input { flex: 1; }
+  .adm-search-row .btn { flex: none; }
+  @media (max-width: 30rem) {
+    .adm-search-row { flex-direction: column; }
+  }
+  .adm .hint {
+    font-size: var(--text-sm); color: var(--text-muted);
+    margin: var(--space-2) 0 0; max-width: 52ch;
+  }
+
+  .adm-section-title { font-size: var(--text-lg); margin: var(--space-8) 0 var(--space-4); }
+  .adm-empty {
+    color: var(--text-muted); font-size: var(--text-sm);
+    background: var(--bg-sunken); border: 1px dashed var(--border);
+    border-radius: var(--radius); padding: var(--space-5); margin-bottom: var(--space-4);
+  }
+
+  /* Key/value rather than a table: two columns of short facts, and it reflows to one
+     column on narrow screens without the horizontal scroll a table would need. */
+  .kv {
+    display: grid; grid-template-columns: max-content 1fr;
+    gap: var(--space-2) var(--space-5); margin: 0 0 var(--space-5);
+  }
+  .kv dt { font-size: var(--text-sm); color: var(--text-muted); }
+  .kv dd { margin: 0; font-size: var(--text-sm); word-break: break-all; }
+  @media (max-width: 30rem) {
+    .kv { grid-template-columns: 1fr; gap: 0 0; }
+    .kv dd { margin-bottom: var(--space-3); }
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    font-size: var(--text-sm);
+  }
+  .adm .small { font-size: var(--text-sm); }
+  .adm .muted { color: var(--text-muted); }
+
+  .lic-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-3);
+  }
+  .lic-slots { font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-5); }
+
+  .pill {
+    display: inline-block; font-size: var(--text-xs); font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em;
+    padding: 3px 9px; border-radius: var(--radius-full); margin-right: var(--space-2);
+    background: var(--accent-subtle); color: var(--accent);
+  }
+  /* A suspended or refunded licence is the single most important thing on the page —
+     it explains why the customer is writing in. Colour plus the word itself. */
+  .pill-revoked, .pill-refunded, .pill-expired {
+    background: var(--danger-bg); color: var(--danger);
+  }
+  .pill-kind { background: var(--bg-sunken); color: var(--text-muted); }
+
+  .adm-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .btn-sm { min-height: 38px; padding: calc(var(--space-2) + 2px) var(--space-4) calc(var(--space-2) - 2px); font-size: var(--text-sm); }
+  .btn.full { width: 100%; }
+  .danger-btn {
+    background: var(--danger); color: #fff; border: 1px solid transparent;
+    border-radius: var(--radius); font: inherit; font-weight: 600; cursor: pointer;
+  }
+  .danger-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+  .plain, .devlist { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+  .devlist { margin-top: var(--space-5); }
+  .dev, .ord, .hist {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: var(--space-4); flex-wrap: wrap;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: var(--space-4);
+  }
+  .dev p, .ord p, .hist p { margin: 2px 0 0; }
+  .hist strong { text-transform: capitalize; }
+
+  .linkish {
+    background: none; border: none; padding: var(--space-2) 0; font: inherit;
+    font-size: var(--text-sm); color: var(--text-muted);
+    text-decoration: underline; cursor: pointer;
+  }
+  .linkish:hover { color: var(--text); }
+
+  .msg {
+    padding: var(--space-3) var(--space-4); border-radius: var(--radius);
+    font-size: var(--text-sm); margin-bottom: var(--space-4);
+  }
+  .msg.err { background: var(--danger-bg); color: var(--danger); }
+  .msg.ok { background: var(--accent-subtle); color: var(--accent); }
+
+  /* Confirmation sheet. Centred rather than a corner toast: it's a decision, and it should
+     interrupt. */
+  .sheet-scrim {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--space-4);
+    background: rgba(12, 10, 9, .55);
+    backdrop-filter: blur(3px);
+  }
+  .sheet {
+    width: 100%; max-width: 30rem; max-height: 90vh; overflow-y: auto;
+    background: var(--bg-raised); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: var(--space-6);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+  }
+  .sheet h2 { font-size: var(--text-lg); margin-bottom: var(--space-3); }
+  .sheet-consequence {
+    font-size: var(--text-sm); color: var(--text-muted); line-height: 1.6;
+    margin-bottom: var(--space-6); max-width: 46ch;
+  }
+  .sheet label { margin-top: var(--space-4); }
+  .sheet .hint { margin-bottom: 0; }
+  .sheet-actions {
+    display: flex; justify-content: flex-end; gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+  .sheet-actions .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .adm-skel {
+    height: 240px; border-radius: var(--radius-lg);
+    background: linear-gradient(90deg, var(--bg-sunken) 25%, var(--bg-raised) 50%, var(--bg-sunken) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite linear;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .adm-skel { animation: none; background: var(--bg-sunken); }
+  }
+</style>
