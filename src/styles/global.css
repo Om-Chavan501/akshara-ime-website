@@ -1,0 +1,326 @@
+/*
+ * Global element styles. Component-specific styling lives with its component; this file only
+ * covers the things every page inherits.
+ */
+
+@import "./tokens.css";
+
+/* ------------------------------------------------------------------------------------
+ * Fonts.
+ *
+ * Anek Devanagari for everything readable — Ek Type (Mumbai), variable weight, covering
+ * Devanagari AND Latin from one designer. That last part matters more than it sounds:
+ * pairing a Latin face with an unrelated Devanagari face is where most Indic-language
+ * products start looking amateur, because weight, contrast and optical size never match.
+ *
+ * Inknut Antiqua is loaded only for the wordmark, and only the one weight the mark uses.
+ * It is a heavy display face; using it for body text would be unreadable.
+ *
+ * display=swap so text is visible immediately in a fallback rather than invisible while the
+ * webfont loads — a blank hero is worse than a momentarily wrong one.
+ * ---------------------------------------------------------------------------------- */
+@import url("https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@200..800&family=Inknut+Antiqua:wght@400;600&display=swap");
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+/* Someone who has asked the OS to reduce motion means it. Scroll-behaviour and every
+   animation below respect that, rather than treating it as advisory. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Anek Devanagari", -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Helvetica, Arial, sans-serif;
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Runs of Devanagari need more leading than Latin at the same size: conjuncts stack below
+   the baseline and matras rise above the shirorekha, so a single line-height shortchanges
+   one script or the other. Mark them explicitly rather than guessing per element. */
+.deva { line-height: var(--leading-deva); }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;      /* stops a heading leaving one orphaned word on its own line */
+}
+
+h1 { font-size: var(--text-3xl); margin-bottom: var(--space-4); }
+h2 { font-size: var(--text-2xl); margin-bottom: var(--space-4); }
+h3 { font-size: var(--text-lg); }
+
+p { margin: 0; max-width: var(--measure); }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+a:hover { color: var(--accent-hover); }
+
+/* Never remove focus rings — keyboard users lose the ability to see where they are.
+   :focus-visible means mouse users don't see them on click, which is the actual complaint
+   people have when they reach for `outline: none`. */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+img, svg { display: block; max-width: 100%; }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--space-16) 0;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.9em;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.4em;
+}
+
+/* ------------------------------------------------------------------------------------
+ * Shared primitives
+ * ---------------------------------------------------------------------------------- */
+
+.wrap {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+@media (min-width: 640px) {
+  .wrap { padding-inline: var(--space-6); }
+}
+
+.section { padding-block: var(--space-16); }
+@media (min-width: 768px) {
+  .section { padding-block: var(--space-24); }
+}
+
+/* An eyebrow is a label FOR the heading beneath it, so it belongs tight against it — the
+   chip treatment made it a separate object floating in its own space, and the gap made the
+   two read as unrelated. Small, coloured, close. */
+.eyebrow {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--highlight);
+  margin: 0 0 var(--space-4);   /* real gap to the heading, not the near-zero gap that made
+                                   eyebrow/heading/lede read as one crowded block */
+  line-height: 1.2;
+}
+
+.lede {
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  line-height: var(--leading-snug);
+  margin-top: var(--space-1);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--text-base);
+  /* line-height:1 is load-bearing. Inheriting the body's 1.65 leading makes the text's line
+     box taller than its glyphs, and flexbox then centres that padded box — which looks
+     off-centre because the visible text sits inside it asymmetrically. This is why the
+     button labels appeared to sit high. */
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  /* 44px minimum touch target — below this, taps miss on a trackpad as well as a phone. */
+  min-height: 44px;
+  transition: background var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+/* Scale, not translate. The guidance is explicit that press feedback must not shift layout
+   bounds — a translate nudges surrounding content, a scale is self-contained. */
+.btn:active { transform: scale(0.97); }
+
+.btn-primary { background: var(--accent); color: var(--text-on-accent); }
+.btn-primary:hover { background: var(--accent-hover); color: var(--text-on-accent); }
+
+.btn-ghost { border-color: var(--border-strong); color: var(--text); background: transparent; }
+.btn-ghost:hover { background: var(--bg-sunken); color: var(--text); }
+
+.btn[disabled], .btn[aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+.muted { color: var(--text-muted); }
+.small { font-size: var(--text-sm); }
+.center { text-align: center; }
+
+
+/* ------------------------------------------------------------------------------------
+ * View transitions
+ *
+ * Deliberately a crossfade rather than a slide. A directional slide implies hierarchy
+ * ("forward"/"back"), and this site's pages are peers — sliding between Pricing and Terms
+ * would be inventing a spatial relationship that doesn't exist.
+ * ---------------------------------------------------------------------------------- */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) {
+  animation: vt-out 90ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+::view-transition-new(root) {
+  animation: vt-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Exit is ~45% of enter, per the "exit faster than enter" rule — it makes navigation feel
+   responsive rather than languid. */
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in  { from { opacity: 0; transform: translateY(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}
+
+
+/* ------------------------------------------------------------------------------------
+ * Full-bleed sections.
+ *
+ * A page where every section is the same centred column at the same width reads as
+ * monotonous no matter how good the type is — the eye has nothing to catch on. These let a
+ * section's BACKGROUND span the whole window while its content stays at a readable measure,
+ * which is what gives a long page rhythm.
+ * ---------------------------------------------------------------------------------- */
+.bleed {
+  width: 100%;
+  border-block: 1px solid var(--border);
+  position: relative;
+}
+.bleed-sunken { background: var(--bg); }
+
+/* The static-backdrop effect: ONE fixed gradient layer behind the whole page (see
+   .bg-fixed in Base.astro), and sections alternate between opaque (hides it) and
+   transparent (lets it show through) rather than each section inventing its own
+   gradient. That is also what fixed the light-mode visibility problem -- one gradient,
+   tuned once against both themes, instead of a per-section approximation that only got
+   checked against dark. */
+.bleed-accent { background: transparent; }
+
+/* Custom scrollbar. Subtle on purpose: a scrollbar is a control, not an ornament, and a
+   loud one is the fastest way to make a considered page look like a template. Firefox gets
+   the standard properties; WebKit gets the pseudo-elements. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+  /* Transparent border + background-clip keeps the thumb visually inset from the edge. */
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); background-clip: content-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+
+/* ------------------------------------------------------------------------------------
+ * Fixed background layer — the "static bg visible through alternating sections" effect.
+ * Sits behind everything (z-index -1, position fixed covering the viewport). Solid
+ * sections (.bleed-sunken, header, footer, cards) paint over it; sections left
+ * transparent (.bleed-accent) let it show through as the page scrolls past them.
+ * ---------------------------------------------------------------------------------- */
+.bg-fixed {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* --accent is a muted navy in light mode (indigo-600), not a saturated hue, so a 16% wash
+     of it over near-white paper was nearly imperceptible -- confirmed by eye, not just
+     assumed. Light mode needs a much stronger mix to read at all; dark mode already worked
+     at the lower one, so it's kept separate rather than raising both and blowing dark out. */
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 0%,
+      color-mix(in srgb, var(--accent) 38%, transparent), transparent 62%),
+    radial-gradient(ellipse 60% 45% at 85% 30%,
+      color-mix(in srgb, var(--highlight) 26%, transparent), transparent 68%),
+    var(--bg);
+}
+@media (prefers-color-scheme: dark) {
+  /* data-theme lives on <html> (:root), not on .bg-fixed itself. */
+  :root:not([data-theme="light"]) .bg-fixed {
+    background:
+      radial-gradient(ellipse 70% 50% at 20% 0%,
+        color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+      radial-gradient(ellipse 60% 45% at 85% 30%,
+        color-mix(in srgb, var(--highlight) 10%, transparent), transparent 65%),
+      var(--bg);
+  }
+}
+:root[data-theme="dark"] .bg-fixed {
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 0%,
+      color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+    radial-gradient(ellipse 60% 45% at 85% 30%,
+      color-mix(in srgb, var(--highlight) 10%, transparent), transparent 65%),
+    var(--bg);
+}
+
+/* ------------------------------------------------------------------------------------
+ * Theme transition. Colour tokens are custom properties, and changing a custom property
+ * does not itself animate -- but the ELEMENTS that consume it can transition their own
+ * background-color/color/border-color, which is enough to make a theme switch crossfade
+ * rather than snap. Scoped to a fixed, short list of properties rather than `transition:
+ * all`, which would also animate layout and make every hover/press feel sluggish.
+ * ---------------------------------------------------------------------------------- */
+body, .site-header, .site-footer, .card, .btn, .bg-fixed,
+.hd-window, .hd-bar, .acct-card, .dev, .cmp-card, .tryit-box {
+  transition: background-color var(--duration-slow) var(--ease-in-out),
+              border-color var(--duration-slow) var(--ease-in-out),
+              color var(--duration-slow) var(--ease-in-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  body, .site-header, .site-footer, .card, .btn, .bg-fixed,
+  .hd-window, .hd-bar, .acct-card, .dev, .cmp-card, .tryit-box {
+    transition: none;
+  }
+}

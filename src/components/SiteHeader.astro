@@ -1,0 +1,231 @@
+---
+/**
+ * Site header with a real mobile menu.
+ *
+ * The first version simply did `display: none` on the nav below 720px, which isn't
+ * responsive — it just deletes the navigation on the devices most likely to need it. This
+ * is built mobile-first: the panel is the default and the horizontal bar is the
+ * enhancement at ≥768px.
+ *
+ * The toggle is a plain <button> with aria-expanded and a real Escape/outside-click
+ * dismissal, because a menu you can open and not close is worse than no menu.
+ */
+import Wordmark from "./Wordmark.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+import NavAccount from "./NavAccount.tsx";
+
+interface Props { minimal?: boolean; }
+const { minimal = false } = Astro.props;
+
+const links = [
+  { href: "/#try", label: "Try it" },
+  { href: "/#how", label: "How it works" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/#install", label: "Install" },
+];
+---
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <Wordmark size="sm" />
+
+    {!minimal && (
+      <>
+        <nav class="nav-desktop" aria-label="Main">
+          {links.map(({ href, label }) => <a href={href}>{label}</a>)}
+        </nav>
+
+        <div class="header-right">
+          <ThemeToggle />
+          <NavAccount client:load />
+        </div>
+
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+          aria-label="Menu">
+          <span class="bars" aria-hidden="true"><span></span><span></span></span>
+        </button>
+      </>
+    )}
+    {minimal && <a class="btn btn-ghost btn-sm cta" href="/">Back to site</a>}
+  </div>
+
+  {!minimal && (
+    <nav class="nav-mobile" id="mobile-nav" aria-label="Main">
+      <div class="nav-mobile-inner">
+        {links.map(({ href, label }) => <a href={href}>{label}</a>)}
+        <a class="btn btn-primary" href="/account.html">Sign in / Get AksharaIME</a>
+        <div class="nav-mobile-theme"><ThemeToggle /></div>
+      </div>
+    </nav>
+  )}
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
+  const panel = document.querySelector<HTMLElement>(".nav-mobile");
+
+  if (toggle && panel) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute("aria-expanded", String(open));
+      // A class driving a grid-template-rows collapse, not the `hidden` attribute. `hidden`
+      // was silently losing to this file's own `.nav-mobile { display: grid }` — author CSS
+      // always outranks the UA stylesheet that makes [hidden] apply display:none, regardless
+      // of specificity, so the panel never actually disappeared. This form also animates,
+      // which the attribute toggle could not.
+      panel.classList.toggle("is-open", open);
+      document.body.style.overflow = open ? "hidden" : "";
+    };
+
+    toggle.addEventListener("click", () => {
+      setOpen(toggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    // Escape closes it, because a menu you can open but not close is worse than none.
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") setOpen(false);
+    });
+
+    // Tapping a link should navigate AND dismiss — these are in-page anchors, so without
+    // this the panel would stay covering the section just scrolled to.
+    panel.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => setOpen(false)));
+
+    // Resizing up to the desktop layout must reset state, or the panel stays open and
+    // invisible while body scroll remains locked.
+    window.matchMedia("(min-width: 768px)").addEventListener("change", (e) => {
+      if (e.matches) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+  }
+
+  /* --- mobile first: nav is a panel, toggle is visible --- */
+  .nav-desktop { display: none; }
+  .header-right { display: none; }
+
+  .nav-toggle {
+    margin-inline-start: auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text);
+  }
+  .bars { display: grid; gap: 5px; width: 18px; }
+  .bars span {
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transform-origin: center;
+    transition: transform var(--duration) var(--ease-out),
+                opacity var(--duration) var(--ease-out);
+  }
+  /* Full X on open, animated rather than snapping — the button itself is a state
+     indicator, so it should transition like one. */
+  .nav-toggle[aria-expanded="true"] .bars span:first-child { transform: translateY(3.5px) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] .bars span:last-child  { transform: translateY(-3.5px) rotate(-45deg); }
+  .nav-toggle:active { transform: scale(0.94); }
+
+  /* Height-animated collapse via the grid-template-rows 0fr/1fr technique: a 0fr row has
+     zero rendered height without needing JS to measure content, and 1fr gives it exactly
+     the height its content needs — so it can transition smoothly in both directions
+     without ever using `height: auto`, which cannot be animated. */
+  .nav-mobile {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--duration-slow) var(--ease-in-out);
+    border-top: 1px solid transparent;
+  }
+  .nav-mobile.is-open {
+    grid-template-rows: 1fr;
+    border-top-color: var(--border);
+  }
+  .nav-mobile-inner {
+    overflow: hidden;
+    display: grid;
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+    background: var(--bg);
+  }
+  .nav-mobile.is-open .nav-mobile-inner { padding: var(--space-4); }
+  .nav-mobile a:not(.btn) {
+    color: var(--text);
+    text-decoration: none;
+    padding: var(--space-3) var(--space-2);
+    border-radius: var(--radius);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .nav-mobile a:not(.btn):hover { background: var(--bg-sunken); }
+  .nav-mobile .btn { margin-top: var(--space-2); }
+  .nav-mobile-theme { display: flex; justify-content: center; padding-top: var(--space-3); }
+
+  /* --- ≥768px: horizontal bar, no toggle --- */
+  @media (min-width: 768px) {
+    .nav-toggle { display: none; }
+    .nav-mobile { display: none; }
+
+    .nav-desktop {
+      display: flex;
+      gap: var(--space-6);
+      margin-inline-start: auto;
+    }
+    .nav-desktop a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      line-height: 1;
+    }
+    .nav-desktop a:hover { color: var(--text); }
+
+    .header-right { display: inline-flex; align-items: center; gap: var(--space-3); }
+  }
+
+  .nav-acct {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    text-decoration: none; color: var(--text); font-size: var(--text-sm);
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+    border: 1px solid var(--border); border-radius: var(--radius-full);
+    min-height: 38px;
+  }
+  .nav-acct:hover { border-color: var(--accent); color: var(--text); }
+  .nav-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent); color: var(--text-on-accent);
+    display: grid; place-items: center; font-size: 11px; font-weight: 700;
+  }
+  /* Reserve the space the control will occupy, so the header doesn't shift when the
+     session resolves. */
+  .nav-acct-ph { display: inline-block; width: 104px; height: 38px; }
+
+  .btn-sm {
+    min-height: 38px;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+</style>

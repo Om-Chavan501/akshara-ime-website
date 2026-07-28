@@ -1,0 +1,38 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base title="Page not found — AksharaIME" noindex={true}>
+  <section class="wrap section nf">
+    <p class="eyebrow">404</p>
+    <h1>This page doesn't exist.</h1>
+    <p class="lede nf-lede">
+      Which is at least unambiguous. The link may be old, or slightly mistyped — a bit like
+      what happens without a proper input method.
+    </p>
+
+    <div class="nf-demo" aria-hidden="true">
+      <code>/thsi-page</code>
+      <span class="nf-arrow">→</span>
+      <span class="deva nf-out">सापडलं नाही</span>
+    </div>
+
+    <div class="nf-cta">
+      <a class="btn btn-primary" href="/">Back to the start</a>
+      <a class="btn btn-ghost" href="/#try">Try the demo</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf { max-width: 640px; padding-block: var(--space-24); }
+  .nf-lede { margin-bottom: var(--space-8); }
+  .nf-demo {
+    display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;
+    background: var(--bg-sunken); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  .nf-arrow { color: var(--text-subtle); }
+  .nf-out { font-size: var(--text-xl); color: var(--accent); }
+  .nf-cta { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+</style>

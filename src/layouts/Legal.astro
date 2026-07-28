@@ -1,0 +1,30 @@
+---
+/**
+ * Shell for the policy pages. They share a shape — short, prose-first, one column at a
+ * comfortable measure — so they share a layout rather than each re-declaring it and slowly
+ * drifting apart, which is exactly what happened when they were separate HTML files.
+ */
+import Base from "./Base.astro";
+
+interface Props { title: string; updated: string; }
+const { title, updated } = Astro.props;
+---
+<Base title={`${title} — AksharaIME`}>
+  <article class="wrap legal section">
+    <p class="eyebrow">{updated}</p>
+    <h1>{title}</h1>
+    <div class="legal-body"><slot /></div>
+  </article>
+</Base>
+
+<style>
+  .legal { max-width: 72ch; }
+  .legal h1 { margin-bottom: var(--space-8); }
+  .legal-body :global(h2) {
+    font-size: var(--text-lg);
+    margin: var(--space-12) 0 var(--space-3);
+  }
+  .legal-body :global(p) { margin-bottom: var(--space-4); color: var(--text-muted); }
+  .legal-body :global(ul) { color: var(--text-muted); padding-left: var(--space-6); }
+  .legal-body :global(li) { margin-bottom: var(--space-2); }
+</style>

@@ -1,0 +1,205 @@
+/*
+ * Design tokens — the single source of truth for the visual system.
+ *
+ * These are *decisions*, not CSS. The companion app (SwiftUI) reads the same values from
+ * BRAND.md; nothing here may be tuned in isolation, or the two surfaces drift and a customer
+ * sees a website and an app that look like different products.
+ *
+ * Layered primitive → semantic on purpose. Components reference semantic names only
+ * (`--surface`, `--text-muted`), never raw colours, so a palette change is one edit rather
+ * than a find-and-replace through every component.
+ */
+
+:root {
+  /* ---------------------------------------------------------------------------------
+   * Primitives — raw values. Never referenced directly by a component.
+   * ------------------------------------------------------------------------------- */
+
+  /* Indigo Ink. Indigo is a real Indian ink-and-dye reference rather than the saffron
+     cliché — literary without being costume-drama. See BRAND.md for the two rejected
+     directions. */
+  --indigo-50:  #f2f1f8;
+  --indigo-100: #eceaf3;
+  --indigo-200: #dedbe8;
+  --indigo-300: #b9b4d0;
+  --indigo-400: #7d84c0;
+  --indigo-500: #4a56a8;
+  --indigo-600: #2c3468;   /* the brand colour */
+  --indigo-700: #232a55;
+  --indigo-800: #1b2140;
+  --indigo-900: #12162c;
+
+  --paper-50:  #ffffff;
+  --paper-100: #faf8f4;    /* warm, not clinical white */
+  --paper-200: #f2efe9;
+  --paper-300: #e5e0d6;
+
+  /* Brass, used sparingly — the subordinate "IME", small accents. Never a CTA: it is a
+     highlight colour, and a brass button next to an indigo one reads as equally important
+     when it is not. */
+  --brass-400: #c99a4e;
+  --brass-500: #a8762c;
+  --brass-600: #855c1f;
+
+  --danger-500: #a63b32;
+  --danger-100: #f7e9e7;
+  --success-500: #2f6d4a;
+
+  /* ---------------------------------------------------------------------------------
+   * Type scale — 1.25 (major third). Big enough to give real hierarchy, restrained
+   * enough that headings don't shout. Body is 17px, not 16: the audience includes
+   * people reading long-form Marathi, and Devanagari needs a little more size than
+   * Latin at the same nominal point size to stay comfortable.
+   * ------------------------------------------------------------------------------- */
+  --text-xs:   0.75rem;    /* 12 — labels, legal */
+  --text-sm:   0.875rem;   /* 14 — captions, secondary */
+  --text-base: 1.0625rem;  /* 17 — body */
+  --text-lg:   1.3125rem;  /* 21 */
+  --text-xl:   1.625rem;   /* 26 */
+  --text-2xl:  2.0625rem;  /* 33 */
+  --text-3xl:  2.625rem;   /* 42 */
+  --text-4xl:  3.25rem;    /* 52 — hero only */
+
+  /* Devanagari sits lower and needs more leading than Latin at the same size, because
+     conjuncts stack below the baseline and matras rise above the shirorekha. A single
+     line-height for both scripts always shortchanges one of them. */
+  --leading-tight: 1.2;
+  --leading-snug:  1.35;
+  --leading-body:  1.65;
+  --leading-deva:  1.85;   /* for runs of Devanagari */
+
+  --tracking-tight: -0.02em;
+  --tracking-wide:   0.14em;   /* the small-caps "IME" mark */
+
+  /* ---------------------------------------------------------------------------------
+   * Spacing — 4px base. Every gap is a multiple; nothing is eyeballed.
+   * ------------------------------------------------------------------------------- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  --measure: 68ch;          /* max line length for readable prose */
+  --page-max: 1240px;
+
+  /* ---------------------------------------------------------------------------------
+   * Motion. Durations are short because this is a utility, not a showreel — the site may
+   * be expressive, but expressive still means *quick*. Every transition uses one of
+   * these; nothing gets a bespoke duration.
+   * ------------------------------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 140ms;
+  --duration:      220ms;
+  --duration-slow: 380ms;
+
+  --shadow-sm: 0 1px 2px rgba(27, 33, 64, 0.06);
+  --shadow:    0 2px 8px rgba(27, 33, 64, 0.08);
+  --shadow-lg: 0 12px 32px rgba(27, 33, 64, 0.12);
+
+  /* ---------------------------------------------------------------------------------
+   * Semantic — what components actually use.
+   * ------------------------------------------------------------------------------- */
+  --bg:             var(--paper-100);
+  --bg-raised:      var(--paper-50);
+  --bg-sunken:      var(--paper-200);
+  --bg-inverse:     var(--indigo-800);
+
+  --text:           var(--indigo-800);
+  --text-muted:     #6f6c86;
+  --text-subtle:    #918da6;
+  --text-inverse:   var(--paper-100);
+  --text-on-accent: var(--paper-100);
+
+  --accent:         var(--indigo-600);
+  --accent-hover:   var(--indigo-700);
+  --accent-subtle:  var(--indigo-100);
+  --highlight:      var(--brass-500);
+
+  --border:         var(--indigo-200);
+  --border-strong:  var(--indigo-300);
+
+  --danger:         var(--danger-500);
+  --danger-bg:      var(--danger-100);
+  --success:        var(--success-500);
+
+  --focus-ring:     var(--indigo-500);
+}
+
+/*
+ * Dark mode. Deliberately NOT an inversion — inverting a warm paper palette produces a
+ * muddy brown-grey. The dark surfaces are cool indigo-tinted near-blacks, and the accent
+ * *lightens*, because indigo-600 on a dark background has nowhere near enough contrast.
+ */
+/* Dark values live in one place and are applied either by the media query (system
+   preference) or by an explicit data-theme="dark" on <html>. Duplicating the block would
+   guarantee the two drift apart. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:            #14161f;
+    --bg-raised:     #1c1f2b;
+    --bg-sunken:     #0f111a;
+    --bg-inverse:    var(--paper-100);
+
+    --text:          #e8e6f0;
+    --text-muted:    #a4a1b8;
+    --text-subtle:   #7b788f;
+    --text-inverse:  var(--indigo-800);
+    --text-on-accent: #0f111a;
+
+    --accent:        var(--indigo-400);
+    --accent-hover:  #949ad4;
+    --accent-subtle: #262b45;
+    --highlight:     var(--brass-400);
+
+    --border:        #2b2f42;
+    --border-strong: #3c4159;
+
+    --danger:        #e08a80;
+    --danger-bg:     #2e1f1d;
+    --success:       #6fbf8e;
+
+    --focus-ring:    var(--indigo-400);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow:    0 2px 8px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg:            #14161f;
+  --bg-raised:     #1c1f2b;
+  --bg-sunken:     #0f111a;
+  --bg-inverse:    var(--paper-100);
+  --text:          #e8e6f0;
+  --text-muted:    #a4a1b8;
+  --text-subtle:   #7b788f;
+  --text-inverse:  var(--indigo-800);
+  --text-on-accent: #0f111a;
+  --accent:        var(--indigo-400);
+  --accent-hover:  #949ad4;
+  --accent-subtle: #262b45;
+  --highlight:     var(--brass-400);
+  --border:        #2b2f42;
+  --border-strong: #3c4159;
+  --danger:        #e08a80;
+  --danger-bg:     #2e1f1d;
+  --success:       #6fbf8e;
+  --focus-ring:    var(--indigo-400);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow:    0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
