@@ -44,7 +44,9 @@ export default function NavAccount() {
       .nav-acct {
         display: inline-flex; align-items: center; gap: var(--space-2);
         text-decoration: none; color: var(--text); font-size: var(--text-sm);
-        padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+        /* Same asymmetric-padding vertical nudge as .btn (see global.css) -- font-metric
+           glyph position, not a spacing bug. */
+        padding: calc(var(--space-2) + 2px) var(--space-3) calc(var(--space-2) - 2px) var(--space-2);
         border: 1px solid var(--border); border-radius: var(--radius-full);
         min-height: 38px;
       }
@@ -54,6 +56,11 @@ export default function NavAccount() {
         background: var(--accent); color: var(--text-on-accent);
         display: grid; place-items: center; font-size: 11px; font-weight: 700;
         flex: none;
+        /* box-sizing:border-box (global) means padding eats into the fixed 24x24 footprint
+           rather than growing it, so width still equals height and this stays a true circle
+           -- the same asymmetric nudge as every other button, just expressed in absolute px
+           since this element has no existing padding to offset from. */
+        padding: 2px 0 0;
       }
       .nav-acct-ph { display: inline-block; width: 104px; height: 38px; }
     `}</style>
