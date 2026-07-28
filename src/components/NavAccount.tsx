@@ -44,9 +44,10 @@ export default function NavAccount() {
       .nav-acct {
         display: inline-flex; align-items: center; gap: var(--space-2);
         text-decoration: none; color: var(--text); font-size: var(--text-sm);
-        /* Same asymmetric-padding vertical nudge as .btn (see global.css) -- font-metric
-           glyph position, not a spacing bug. */
-        padding: calc(var(--space-2) + 2px) var(--space-3) calc(var(--space-2) - 2px) var(--space-2);
+        /* Symmetric on purpose -- this outer pill's "Account" label was never reported as
+           off. Only the single letter inside the small .nav-avatar circle below was. Nudging
+           this one too was a mistake: it moved a chip that was already correct. */
+        padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
         border: 1px solid var(--border); border-radius: var(--radius-full);
         min-height: 38px;
       }
