@@ -213,7 +213,9 @@ const links = [
 
   .btn-sm {
     min-height: 38px;
-    padding: var(--space-2) var(--space-4);
+    /* Same asymmetric-padding shift as .btn, scaled down for the smaller button --
+       proportionally smaller so it doesn't overcorrect on a shorter box. */
+    padding: calc(var(--space-2) + 2px) var(--space-4) calc(var(--space-2) - 2px);
     font-size: var(--text-sm);
   }
 </style>

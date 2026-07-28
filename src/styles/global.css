@@ -147,24 +147,27 @@ code {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-6);
+  /* Asymmetric padding, not a bug -- this IS the fix, and it's deliberate. flex
+     align-items:center only centres the line BOX; where a font draws glyphs inside that box
+     is decided by the font's own ascent/descent split (the same font-metrics-vs-visual-
+     position problem already measured for the अ mark in Branding/make_assets.swift). Anek
+     Devanagari reserves generous vertical room for Devanagari conjuncts/matras even on plain
+     Latin runs, so labels sat visibly high in an otherwise-centred box.
+     text-box-trim (below) is the standards-track fix, but it's too new to rely on alone --
+     confirmed still sitting high in a browser without support for it, meaning it silently
+     no-opped. This padding shift is the universal fallback: because box-sizing is
+     border-box everywhere in this project, extra top / less bottom padding moves the glyph
+     DOWN inside a button whose own outer edges (border, background, overall size) don't move
+     at all -- only the ink shifts. The shift is exactly (padding-top − padding-bottom) / 2. */
+  padding: calc(var(--space-3) + 3px) var(--space-6) calc(var(--space-3) - 3px);
   border-radius: var(--radius);
   border: 1px solid transparent;
   font-family: inherit;
   font-weight: 600;
   font-size: var(--text-base);
-  /* line-height:1 alone still isn't enough. Even at line-height:1, a font renders its glyphs
-     at a position within that line box determined by ITS OWN internal ascent/descent split
-     (the same font-metrics-vs-visual-position problem already measured for the अ mark in
-     Branding/make_assets.swift) — flex align-items:center only centres the box, not the ink
-     inside it. Anek Devanagari reserves generous vertical room for Devanagari conjuncts and
-     matras even on pure-Latin runs, so plain button labels sat off-centre inside a
-     technically-centred box.
-     text-box-trim trims the box down to the font's actual cap-height/alphabetic-baseline
-     extent, which is the standards-track fix for exactly this class of bug rather than a
-     hand-tuned offset. It's a progressive enhancement — unsupported browsers silently keep
-     the line-height:1 behaviour above, so nothing regresses where it's unavailable. */
   line-height: 1;
+  /* Kept as a progressive enhancement for browsers that DO support it -- harmless where it
+     doesn't apply, since the padding shift above is what's actually carrying the fix. */
   text-box-trim: trim-both;
   text-box-edge: cap alphabetic;
   text-decoration: none;
