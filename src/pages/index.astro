@@ -1,0 +1,426 @@
+---
+import Base from "../layouts/Base.astro";
+import Wordmark from "../components/Wordmark.astro";
+import ImeExplainer from "../components/ImeExplainer.tsx";
+import TryIt from "../components/TryIt.tsx";
+import HeroDemo from "../components/HeroDemo.tsx";
+import Reveal from "../components/Reveal.tsx";
+import Comparison from "../components/Comparison.tsx";
+
+const tiers = [
+  { devices: 1, inr: "₹1,499", usd: "$17.99" },
+  { devices: 2, inr: "₹2,499", usd: "$29.99" },
+  { devices: 3, inr: "₹3,499", usd: "$41.99" },
+  { devices: 4, inr: "₹4,499", usd: "$53.99" },
+  { devices: 5, inr: "₹5,499", usd: "$65.99" },
+];
+
+const examples = [
+  { typed: "namaskaara", got: "नमस्कार" },
+  { typed: "jhaalM",     got: "झालं" },
+  { typed: "maraaThI",   got: "मराठी" },
+  { typed: "puNe",       got: "पुणे" },
+];
+---
+
+<Base title="AksharaIME — Marathi typing for Mac">
+
+  <!-- ================= Hero ================= -->
+  <section class="hero wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">macOS input method</p>
+        <h1>Type Marathi the way you already say it.</h1>
+        <p class="lede hero-lede">
+          Spell it how it sounds and watch it become Devanagari — in any app on your Mac,
+          with no new keyboard layout to learn.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="/account.html">Get AksharaIME</a>
+          <a class="btn btn-ghost" href="#try">Try it first</a>
+        </div>
+        <p class="small muted hero-note">
+          One-time purchase · macOS 13+ · Apple Silicon and Intel
+        </p>
+      </div>
+      <div class="hero-visual">
+        <HeroDemo client:load />
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Try it =================
+       Placed immediately after the hero on purpose: the recommended pattern for this
+       product type is "Interactive Demo + Feature-Rich", and the demo IS the argument. -->
+  <section class="bleed bleed-accent" id="try">
+    <div class="wrap section">
+    <Reveal client:visible>
+      <p class="eyebrow">Try it right now</p>
+      <h2 class="try-title">Type something. Watch it convert.</h2>
+      <p class="lede try-lede">
+        This is the real conversion engine — the same rules the app uses, verified against a
+        156-case test corpus. No install needed to see whether it gets your words right.
+      </p>
+    </Reveal>
+    <TryIt client:visible />
+    </div>
+  </section>
+
+  <!-- ================= What you type → what you get ================= -->
+  <section class="wrap section" id="how">
+    <Reveal client:visible>
+      <p class="eyebrow">How it works</p>
+      <h2>Phonetic, not positional.</h2>
+    </Reveal>
+    <p class="lede" style="margin-bottom: var(--space-12);">
+      You spell words how they sound in Roman letters. AksharaIME converts them as you type,
+      and commits when you press space — the same scheme people have used on Windows for
+      twenty years, now done properly on the Mac.
+    </p>
+
+    <ul class="examples">
+      {examples.map(({ typed, got }, i) => (
+        <Reveal as="li" index={i} client:visible class="example">
+          <code>{typed}</code>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="deva result">{got}</span>
+        </Reveal>
+      ))}
+    </ul>
+  </section>
+
+  <!-- ================= IME explainer ================= -->
+  <section class="wrap section explainer-section">
+    <ImeExplainer client:visible />
+  </section>
+
+  <!-- ================= Why: the comparison =================
+       The vaa~gmaya example is the strongest argument on the page — a real word that
+       suggestion-based transliteration reliably gets wrong. -->
+  <section class="bleed bleed-sunken">
+    <div class="wrap section">
+      <Reveal client:visible>
+        <p class="eyebrow">Why not the built-in options</p>
+        <h2>One word, three approaches.</h2>
+        <p class="lede section-lede">
+          वाङ्मय — a perfectly ordinary Marathi word with a conjunct in the middle. Here's
+          what each way of typing it actually gives you.
+        </p>
+      </Reveal>
+      <Comparison client:visible />
+    </div>
+  </section>
+
+  <!-- ================= Pricing ================= -->
+  <section class="bleed" id="pricing">
+    <div class="wrap section">
+    <Reveal client:visible>
+      <p class="eyebrow">Pricing</p>
+      <h2>Buy once. It stays yours.</h2>
+    </Reveal>
+    <p class="lede" style="margin-bottom: var(--space-8);">
+      No subscription. Pay for the number of Macs you want to use it on, and add more later
+      if you need to.
+    </p>
+
+    <div class="pricing-grid">
+      {tiers.map(({ devices, inr, usd }, i) => (
+        <Reveal index={i} client:visible class={`tier-card${devices === 2 ? " is-popular" : ""}`}>
+          <a href="/account.html" class="tier-link">
+            {devices === 2 && <span class="tier-badge">Most Macs bought</span>}
+            <span class="tier-count">{devices} {devices === 1 ? "Mac" : "Macs"}</span>
+            <span class="tier-price">{inr}</span>
+            <span class="tier-usd muted small">or {usd}</span>
+          </a>
+        </Reveal>
+      ))}
+    </div>
+
+    <p class="small muted pricing-note">
+      Prices include tax. You'll create an account before paying, so your licence is attached
+      to an address you've confirmed — no lost purchases from a mistyped email. Need more
+      later? Buy a bigger tier and we raise your existing licence rather than starting a new one.
+    </p>
+    </div>
+  </section>
+
+  <!-- ================= Install ================= -->
+  <section class="wrap section" id="install">
+    <Reveal client:visible>
+      <p class="eyebrow">Installing</p>
+      <h2>Five minutes, one restart.</h2>
+    </Reveal>
+    <p class="lede" style="margin-bottom: var(--space-12);">
+      Being honest about the awkward parts: macOS requires a login cycle before it will
+      recognise a new input method, and AksharaIME isn't notarised by Apple yet, so you'll
+      see a security warning. Both are one-time.
+    </p>
+
+    <ol class="steps">
+      <li>
+        <div>
+        <h3>Run the installer</h3>
+        <p class="muted small">
+          macOS will say it can't verify the developer. Click <strong>Done</strong>, then open
+          <strong>System Settings → Privacy &amp; Security</strong>, scroll down, and click
+          <strong>Open Anyway</strong>.
+        </p>
+        </div>
+      </li>
+      <li>
+        <div>
+        <h3>Log out and back in</h3>
+        <p class="muted small">
+          Or restart. macOS only picks up newly installed input methods after a login cycle —
+          skip this and it simply won't appear.
+        </p>
+        </div>
+      </li>
+      <li>
+        <div>
+        <h3>Add the input source</h3>
+        <p class="muted small">
+          <strong>System Settings → Keyboard → Input Sources → +</strong>, then find
+          <strong>AksharaIME</strong>. It's listed under English.
+        </p>
+        </div>
+      </li>
+      <li>
+        <div>
+        <h3>Sign in and activate</h3>
+        <p class="muted small">
+          Open AksharaIME Companion, sign in, and click <strong>Activate this Mac</strong>.
+        </p>
+        </div>
+      </li>
+      <li>
+        <div>
+        <h3>Start typing</h3>
+        <p class="muted small">
+          Switch to AksharaIME in the menu bar and type <code>namaskaara</code>.
+        </p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ================= Requirements + FAQ ================= -->
+  <section class="wrap section" id="faq">
+    <p class="eyebrow">Details</p>
+    <h2>The specifics.</h2>
+
+    <div class="faq">
+      <details open>
+        <summary>What do I need to run it?</summary>
+        <p class="muted">
+          <strong>macOS 13 (Ventura) or later</strong>, on either Apple Silicon or Intel.
+          It's a universal build, so it runs natively on both.
+        </p>
+      </details>
+      <details>
+        <summary>Does it work in every app?</summary>
+        <p class="muted">
+          It's a system input method, so it works anywhere you can type — Pages, Word, Mail,
+          Safari, Slack, your terminal. Nothing app-specific.
+        </p>
+      </details>
+      <details>
+        <summary>Does my typing go anywhere?</summary>
+        <p class="muted">
+          No. Conversion happens entirely on your Mac. The app checks your licence with our
+          server periodically, and that check sends a hashed device identifier and nothing
+          else — no keystrokes, no text, no app names.
+        </p>
+      </details>
+      <details>
+        <summary>What if I get a new Mac?</summary>
+        <p class="muted">
+          Deactivate the old one and activate the new one. If the old Mac is online it hands
+          over immediately; if it's lost or dead you can release its slot yourself.
+        </p>
+      </details>
+      <details>
+        <summary>Can I get a refund?</summary>
+        <p class="muted">
+          Yes — within 14 days, no questions asked. Email us and we'll sort it out.
+        </p>
+      </details>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .hero { padding-block: var(--space-16) var(--space-16); }
+  .hero-grid { display: grid; gap: var(--space-12); align-items: center; }
+  .hero h1 {
+    font-size: clamp(2.1rem, 7vw, var(--text-4xl));
+    margin-bottom: var(--space-5);
+    max-width: 15ch;          /* forces a deliberate 2–3 line break instead of one long line */
+  }
+  .hero-lede { margin-bottom: var(--space-8); max-width: 44ch; }
+  .hero-cta { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  .hero-note { margin-top: var(--space-6); }
+
+  @media (min-width: 900px) {
+    .hero { padding-block: var(--space-24) var(--space-24); }
+    /* Asymmetric on purpose: copy leads, the demo supports. Two equal columns would read as
+       two competing focal points. */
+    .hero-grid { grid-template-columns: 1.05fr 0.95fr; gap: var(--space-16); }
+  }
+
+  .examples {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-4);
+  }
+  .example {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6) var(--space-4);
+  }
+  .example .arrow { color: var(--text-subtle); }
+  .example .result { font-size: var(--text-xl); color: var(--accent); }
+
+  .explainer-section {
+    border-block: 1px solid var(--border);
+    background: var(--bg-sunken);
+  }
+
+  .grid3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+  @media (min-width: 640px) {
+    .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 900px) {
+    .pricing-grid { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  .tier-card { position: relative; }
+  .tier-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-1);
+    padding: var(--space-6) var(--space-4);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    text-decoration: none;
+    color: var(--text);
+    height: 100%;
+    transition: border-color var(--duration-fast) var(--ease-out),
+                transform var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration-fast) var(--ease-out);
+  }
+  .tier-link:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    color: var(--text);
+  }
+  .tier-link:active { transform: translateY(0) scale(0.98); }
+
+  /* The 2-device tier is marked as the common choice — most buyers cover a laptop and a
+     desktop — so it carries visual weight the way an actual decision-maker on a pricing
+     page should, rather than five identical boxes with no signal about which to pick. */
+  .is-popular .tier-link {
+    border-color: var(--accent);
+    border-width: 2px;
+    background: var(--accent-subtle);
+  }
+  .tier-badge {
+    position: absolute;
+    top: -11px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: var(--text-on-accent);
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+  .tier-count { font-size: var(--text-sm); color: var(--text-muted); margin-top: var(--space-2); }
+  .tier-price { font-size: var(--text-xl); font-weight: 700; }
+  .tier-usd { margin-top: -2px; }
+
+  .pricing-note { margin-top: var(--space-8); max-width: 60ch; }
+
+  .steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-8);
+    max-width: 62ch;
+  }
+  .steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .steps li::before {
+    content: counter(step);
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-full);
+    background: var(--accent-subtle);
+    color: var(--accent);
+    display: grid;
+    place-items: center;
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+  .steps h3 { margin-bottom: var(--space-1); }
+
+  .faq { max-width: 68ch; }
+  .faq details {
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-4) 0;
+  }
+  .faq summary {
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "+";
+    color: var(--text-subtle);
+    font-weight: 400;
+  }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { margin-top: var(--space-3); }
+
+  .try-section { border-block: 1px solid var(--border); background: var(--bg-sunken); }
+  .try-title { margin-bottom: var(--space-4); }
+    .try-lede { margin-bottom: var(--space-12); max-width: 54ch; }
+  .section-lede { margin-bottom: var(--space-12); max-width: 56ch; }
+  .center { text-align: center; }
+</style>

@@ -1,0 +1,83 @@
+---
+/**
+ * The brand lockup: mark + "Akshara" + a subordinate "IME".
+ *
+ * "IME" is deliberately demoted (small, letterspaced, brass rather than indigo). It is
+ * jargon — a Marathi journalist has no idea what an Input Method Editor is, while a
+ * developer does — so the brand leads with the word that means something to everyone and
+ * keeps the technical term available to those who want it. See BRAND.md.
+ *
+ * ALIGNMENT: the first version used `align-items: baseline` with a hand-nudged `top` on the
+ * mark, which fought itself and left the अ visibly high. The mark is a *square glyph already
+ * optically centred inside its own viewBox*, so it has no meaningful baseline to share with
+ * text. Centring the two boxes against each other is the correct relationship — and that
+ * only works once the text's line box is tight (`line-height: 1`), otherwise the inherited
+ * body leading pads the text box asymmetrically and re-introduces the drift.
+ */
+import Mark from "./Mark.astro";
+
+interface Props {
+  size?: "sm" | "md" | "lg";
+  href?: string | null;
+}
+const { size = "md", href = "/" } = Astro.props;
+
+const dims = {
+  sm: { mark: 24, word: "1.15rem", ime: "0.56rem" },
+  md: { mark: 32, word: "1.5rem",  ime: "0.64rem" },
+  lg: { mark: 56, word: "2.6rem",  ime: "0.82rem" },
+}[size];
+
+const Tag = href ? "a" : "div";
+---
+
+<Tag class="lockup" href={href ?? undefined}>
+  <Mark size={dims.mark} class="lockup-mark" />
+  <span class="lockup-text">
+    <span class="lockup-word">Akshara</span><span class="lockup-ime">IME</span>
+  </span>
+</Tag>
+
+<style define:vars={{ mark: `${dims.mark}px`, word: dims.word, ime: dims.ime }}>
+  .lockup {
+    display: inline-flex;
+    align-items: center;      /* box-to-box, not baseline — see the note above */
+    gap: 0.42em;
+    font-size: var(--word);   /* so the gap scales with the wordmark */
+    text-decoration: none;
+    color: var(--text);
+    line-height: 1;
+  }
+  .lockup:hover { color: var(--text); }
+
+  .lockup :global(.lockup-mark) {
+    color: var(--accent);
+    flex: none;
+    display: block;
+  }
+
+  .lockup-text {
+    display: inline-flex;
+    align-items: baseline;    /* word and IME DO share a baseline with each other */
+    gap: 0.28em;
+    line-height: 1;
+  }
+
+  .lockup-word {
+    font-family: "Inknut Antiqua", Georgia, serif;
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .lockup-ime {
+    font-family: "Anek Devanagari", system-ui, sans-serif;
+    font-size: var(--ime);
+    font-weight: 700;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--highlight);
+    line-height: 1;
+  }
+</style>

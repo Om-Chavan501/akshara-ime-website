@@ -1,0 +1,134 @@
+---
+import "../styles/global.css";
+import Wordmark from "../components/Wordmark.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import { ClientRouter } from "astro:transitions";
+
+interface Props {
+  title: string;
+  description?: string;
+  noindex?: boolean;
+  /** Account/support pages get a bare header — no marketing nav to wander off into. */
+  minimalNav?: boolean;
+}
+
+const {
+  title,
+  description = "Type Marathi in Devanagari on your Mac, in any app, using natural phonetic spelling — no new layout to learn.",
+  noindex = false,
+  minimalNav = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#2c3468" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#14161f" media="(prefers-color-scheme: dark)" />
+
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  {/* Cross-page transitions. Without this every navigation is a hard document swap, which
+      is what made the site feel like a stack of separate pages rather than one product.
+      Astro 7 renamed ViewTransitions to ClientRouter. */}
+  <ClientRouter />
+
+  {/* Applied BEFORE first paint. Running this after hydration would flash the wrong theme
+      on every load, which is worse than not offering a toggle at all. */}
+  <script is:inline>
+    window.__applyTheme = function () {
+      var pref = localStorage.getItem("theme") || "system";
+      var root = document.documentElement;
+      if (pref === "system") root.removeAttribute("data-theme");
+      else root.setAttribute("data-theme", pref);
+    };
+    window.__applyTheme();
+    document.addEventListener("astro:after-swap", window.__applyTheme);
+  </script>
+</head>
+
+<body>
+  {/* Fixed backdrop the alternating solid/transparent sections show or hide. transition:persist
+      so it isn't torn down and recreated (and thus flickering) on every page navigation. */}
+  <div class="bg-fixed" aria-hidden="true" transition:persist="bg-fixed"></div>
+
+  <a href="#main" class="skip">Skip to content</a>
+
+  <SiteHeader minimal={minimalNav} transition:persist />
+
+  <main id="main">
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div>
+        <Wordmark size="sm" />
+        <p class="small muted" style="margin-top: var(--space-3);">
+          An independent macOS input method for Marathi.
+        </p>
+      </div>
+      <nav aria-label="Footer">
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/refund.html">Refunds</a>
+        <a href="mailto:om.chavan501@gmail.com">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <style>
+    .skip {
+      position: absolute;
+      left: -9999px;
+      top: var(--space-2);
+      background: var(--accent);
+      color: var(--text-on-accent);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius);
+      z-index: 100;
+    }
+    /* Visible only when tabbed to — a keyboard user shouldn't have to tab through the whole
+       nav on every page to reach the content. */
+    .skip:focus { left: var(--space-4); }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      margin-top: var(--space-32);
+      padding-block: var(--space-12);
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-8);
+      flex-wrap: wrap;
+    }
+    .footer-inner nav { display: flex; gap: var(--space-6); flex-wrap: wrap; }
+    .footer-inner nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: var(--text-sm);
+    }
+    .footer-inner nav a:hover { color: var(--text); }
+  </style>
+</body>
+</html>
