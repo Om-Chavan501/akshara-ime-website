@@ -153,11 +153,20 @@ code {
   font-family: inherit;
   font-weight: 600;
   font-size: var(--text-base);
-  /* line-height:1 is load-bearing. Inheriting the body's 1.65 leading makes the text's line
-     box taller than its glyphs, and flexbox then centres that padded box — which looks
-     off-centre because the visible text sits inside it asymmetrically. This is why the
-     button labels appeared to sit high. */
+  /* line-height:1 alone still isn't enough. Even at line-height:1, a font renders its glyphs
+     at a position within that line box determined by ITS OWN internal ascent/descent split
+     (the same font-metrics-vs-visual-position problem already measured for the अ mark in
+     Branding/make_assets.swift) — flex align-items:center only centres the box, not the ink
+     inside it. Anek Devanagari reserves generous vertical room for Devanagari conjuncts and
+     matras even on pure-Latin runs, so plain button labels sat off-centre inside a
+     technically-centred box.
+     text-box-trim trims the box down to the font's actual cap-height/alphabetic-baseline
+     extent, which is the standards-track fix for exactly this class of bug rather than a
+     hand-tuned offset. It's a progressive enhancement — unsupported browsers silently keep
+     the line-height:1 behaviour above, so nothing regresses where it's unavailable. */
   line-height: 1;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
