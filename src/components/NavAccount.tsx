@@ -42,29 +42,45 @@ export default function NavAccount() {
   const styles = (
     <style>{`
       .nav-acct {
-        display: inline-flex; align-items: center; gap: var(--space-2);
-        text-decoration: none; color: var(--text); font-size: var(--text-sm);
-        /* "Account" is plain text in a flex row exactly like every .btn label, so it has the
-           identical font-metric mispositioning -- reverting this to symmetric was wrong; the
-           text really does need the same downward nudge as buttons elsewhere. */
-        padding: calc(var(--space-2) + 2px) var(--space-3) calc(var(--space-2) - 2px) var(--space-2);
-        border: 1px solid var(--border); border-radius: var(--radius-full);
+        display: inline-flex; 
+        align-items: center; 
+        gap: var(--space-2);
+        text-decoration: none; 
+        color: var(--text); 
+        font-size: var(--text-sm);
+        /* Use symmetric padding so align-items: center works cleanly */
+        padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+        border: 1px solid var(--border); 
+        border-radius: var(--radius-full);
         min-height: 38px;
+        box-sizing: border-box;
       }
-      .nav-acct:hover { border-color: var(--accent); color: var(--text); }
+      .nav-acct:hover { 
+        border-color: var(--accent); 
+        color: var(--text); 
+      }
       .nav-avatar {
-        width: 24px; height: 24px; border-radius: 50%;
-        background: var(--accent); color: var(--text-on-accent);
-        display: grid; place-items: center; font-size: 11px; font-weight: 700;
+        width: 24px; 
+        height: 24px; 
+        border-radius: 50%;
+        background: var(--accent); 
+        color: var(--text-on-accent);
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        font-size: 11px; 
+        font-weight: 700;
+        line-height: 1; /* Prevents line-height from pushing letter down */
         flex: none;
-        /* box-sizing:border-box (global) means padding eats into the fixed 24x24 footprint
-           rather than growing it, so width still equals height and this stays a true circle
-           -- the same asymmetric nudge as every other button, just expressed in absolute px
-           since this element has no existing padding to offset from. Bumped from 2px to 3px:
-           the letter was still reported sitting a little high at the smaller value. */
-        padding: 3px 0 0;
+        padding: 0; /* Remove asymmetric top padding */
       }
-      .nav-acct-ph { display: inline-block; width: 104px; height: 38px; }
+      /* Match display behavior with .nav-acct so header stays aligned on load */
+      .nav-acct-ph { 
+        display: inline-block; 
+        vertical-align: middle; 
+        width: 104px; 
+        height: 38px; 
+      }
     `}</style>
   );
 
