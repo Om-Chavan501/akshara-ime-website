@@ -132,7 +132,7 @@ const examples = [
       {tiers.map(({ devices, inr, usd }, i) => (
         <Reveal index={i} client:visible class={`tier-card${devices === 2 ? " is-popular" : ""}`}>
           <a href="/account.html" class="tier-link">
-            {devices === 2 && <span class="tier-badge">Most Macs bought</span>}
+            {devices === 2 && <span class="tier-badge">Laptop + desktop</span>}
             <span class="tier-count">{devices} {devices === 1 ? "Mac" : "Macs"}</span>
             <span class="tier-price">{inr}</span>
             <span class="tier-usd muted small">or {usd}</span>
@@ -332,8 +332,16 @@ const examples = [
     .pricing-grid { grid-template-columns: repeat(5, 1fr); }
   }
 
-  .tier-card { position: relative; }
+  /* The positioning context for .tier-badge lives HERE, on the link, not on .tier-card.
+     .tier-card is the Reveal island's wrapper — created by React on the client, so it never
+     receives Astro's scoping attribute and no scoped rule can reach it. `position: relative`
+     sat there doing nothing, the badge fell back to a containing block far up the page, and
+     it floated near the top of the section. It looked correct on hover purely by accident:
+     .tier-link's hover `transform` creates a containing block, so hovering snapped it into
+     the right place. Same island-scoping trap as NavAccount — scoped CSS reaches an island's
+     server-rendered children, never its client-created wrapper. */
   .tier-link {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -358,9 +366,11 @@ const examples = [
   }
   .tier-link:active { transform: translateY(0) scale(0.98); }
 
-  /* The 2-device tier is marked as the common choice — most buyers cover a laptop and a
-     desktop — so it carries visual weight the way an actual decision-maker on a pricing
-     page should, rather than five identical boxes with no signal about which to pick. */
+  /* The 2-device tier carries visual weight so the grid offers a default, rather than five
+     identical boxes with no signal about which to pick. The badge says who the tier suits
+     ("Laptop + desktop") rather than claiming other people bought it: with one sale on the
+     books, any "most customers choose this" is invented social proof. Revisit the wording
+     when the orders table can actually support it. */
   .is-popular .tier-link {
     border-color: var(--accent);
     border-width: 2px;
@@ -369,6 +379,10 @@ const examples = [
   .tier-badge {
     position: absolute;
     top: -11px;
+    /* Explicit rather than relying on the flex static position, so centring doesn't depend
+       on how a browser resolves the static position of an abspos flex child. */
+    left: 50%;
+    transform: translateX(-50%);
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.04em;
