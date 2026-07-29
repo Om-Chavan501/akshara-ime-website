@@ -7,6 +7,11 @@ import HeroDemo from "../components/HeroDemo.tsx";
 import Reveal from "../components/Reveal.tsx";
 import Comparison from "../components/Comparison.tsx";
 
+// The installer lives on GitHub Releases. Kept as a named constant so the version in
+// the path is changed in one place when a new build ships.
+const DOWNLOAD_URL =
+  "https://github.com/Om-Chavan501/akshara-ime-website/releases/download/v0.1/AksharaIME-Installer.pkg";
+
 const tiers = [
   { devices: 1, inr: "₹1,499", usd: "$17.99" },
   { devices: 2, inr: "₹2,499", usd: "$29.99" },
@@ -155,6 +160,20 @@ const examples = [
       recognise a new input method, and AksharaIME isn't notarised by Apple yet, so you'll
       see a security warning. Both are one-time.
     </p>
+
+    {/* The download sits above the steps rather than in the nav or the hero: someone who
+        hasn't bought yet has no use for it, and someone who has is following these steps.
+        Deliberately not gated — the asset is a public GitHub Releases URL, so a sign-in wall
+        would protect nothing while still stranding a customer reinstalling on a new Mac. */}
+    <div class="download">
+      <a class="btn btn-primary" href={DOWNLOAD_URL} download>
+        Download for macOS
+      </a>
+      <p class="small muted download-note">
+        Free to download · a licence is needed to type in Marathi ·
+        macOS 13+ · Apple Silicon and Intel
+      </p>
+    </div>
 
     <ol class="steps">
       <li>
@@ -365,6 +384,19 @@ const examples = [
   .tier-usd { margin-top: -2px; }
 
   .pricing-note { margin-top: var(--space-8); max-width: 60ch; }
+
+  /* The download sits between the lede and the numbered steps, so it reads as step zero
+     without being numbered — it isn't something you do on your Mac, it's how you get there. */
+  .download {
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    margin-bottom: var(--space-12);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .download-note { margin: 0; max-width: 46ch; }
 
   .steps {
     list-style: none;
