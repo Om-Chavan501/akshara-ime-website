@@ -93,8 +93,11 @@ export default function Account() {
   const loadLicense = useCallback(async () => {
     if (!session) return;
     setLoadingLicense(true);
+    // Not filtered to status = 'active': an expired trial is still the licence this account
+    // has, and reporting it as "no licence" would offer them a second trial they can't have
+    // and hide the reason typing stopped.
     const { data: lic } = await supabase
-      .from("licenses").select("*").eq("status", "active")
+      .from("licenses").select("*")
       .order("created_at", { ascending: false }).limit(1).maybeSingle();
     setLicense(lic ?? null);
     if (lic) {
@@ -307,8 +310,25 @@ export default function Account() {
 
             {!loadingLicense && !license && (
               <>
+                {/* The trial is started from the companion, not here, and that is a constraint
+                    rather than an oversight: a trial is one per *Mac*, and only the native app
+                    can see which Mac it is running on. A browser cannot, so offering the
+                    button here would mean offering a trial that might be refused at the last
+                    step — after the person had already committed to it. */}
+                <div className="acct-card acct-trial">
+                  <h2>Want to try it first?</h2>
+                  <p className="muted small">
+                    There's a free five-day trial — no card, nothing to cancel. Install
+                    AksharaIME, open the companion app and it's one click. One trial per Mac.
+                  </p>
+                  <a className="btn btn-ghost btn-sm" href="/#install"
+                     style={{ marginTop: "var(--space-4)", display: "inline-flex" }}>
+                    How to install
+                  </a>
+                </div>
+
                 <div className="acct-card">
-                  <h2>Choose how many Macs</h2>
+                  <h2>Or buy a licence</h2>
                   <p className="muted small" style={{ marginBottom: "var(--space-6)" }}>
                     One-time purchase. You can add more devices later without buying again.
                   </p>
@@ -357,6 +377,36 @@ export default function Account() {
                       {devices.filter(holdsSlot).length} of {license.max_devices} in use
                     </span>
                   </div>
+
+                  {/* A trial has an end date and a paid licence doesn't, so this is the one
+                      place the two genuinely differ. An ended trial gets a price rather than
+                      an apology — it is the only screen where that is the useful thing. */}
+                  {license.kind === "trial" && (() => {
+                    const ends = license.expires_at ? new Date(license.expires_at) : null;
+                    if (!ends) return null;
+                    const days = Math.max(0, Math.ceil((ends.getTime() - Date.now()) / 86_400_000));
+                    return ends.getTime() < Date.now() ? (
+                      <div className="trial-note is-over">
+                        <strong>Your free trial has ended.</strong>
+                        <p className="muted small">
+                          Typing has stopped on your Macs. A licence is a one-time purchase —
+                          buy once and it stays yours, and everything you've set up carries over.
+                        </p>
+                        <a className="btn btn-primary btn-sm" href="/#pricing">Buy a licence</a>
+                      </div>
+                    ) : (
+                      <div className="trial-note">
+                        <strong>{days === 0 ? "Last day of your trial" :
+                                 `${days} day${days === 1 ? "" : "s"} left in your trial`}</strong>
+                        <p className="muted small">
+                          Buy any time — your trial converts in place, so there's nothing to
+                          set up again and no Mac to re-activate.
+                        </p>
+                        <a className={`btn btn-sm ${days <= 1 ? "btn-primary" : "btn-ghost"}`}
+                           href="/#pricing">Buy a licence</a>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <h2 className="sec-title">Your Macs</h2>
