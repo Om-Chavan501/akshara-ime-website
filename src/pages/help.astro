@@ -1,0 +1,106 @@
+---
+import Base from "../layouts/Base.astro";
+
+/**
+ * The three tickets FLOWS.md predicts will arrive, answered before they're asked.
+ *
+ * Support is one person and one inbox with a no-questions refund policy — fine at ten
+ * customers, a problem at two hundred. Everything here is a question already known to be
+ * coming: the input source not appearing (C5/C6 — the login cycle is easy to skip and there
+ * is no explanation anywhere when it's missed), the Gatekeeper warning (C2, unavoidable while
+ * unsigned), and moving a licence between Macs (F1–F5).
+ *
+ * Written as answers rather than a FAQ voice. Someone reading this is already stuck.
+ */
+const groups = [
+  {
+    title: "AksharaIME isn't in my input source list",
+    body: [
+      "Almost always the login cycle. macOS only notices a newly installed input method after you log out and back in — until then it genuinely isn't there to add, and nothing on screen says so.",
+      "Log out and back in (or restart), then go to <strong>System Settings → Keyboard → Input Sources → +</strong>. It's listed under <strong>English</strong>, not Marathi — that's a quirk of how macOS groups input methods, not a mistake on your part.",
+      "If you've already done a login cycle and it's still missing, the installer may not have finished. Re-run it and watch for an error at the end.",
+    ],
+  },
+  {
+    title: "macOS says the developer can't be verified",
+    body: [
+      "Expected, and it will keep happening until the app is notarised by Apple. It means the build isn't registered with Apple — not that anything is wrong with it.",
+      "Click <strong>Done</strong> on the warning, then open <strong>System Settings → Privacy &amp; Security</strong>, scroll to the bottom, and click <strong>Open Anyway</strong> next to the AksharaIME message.",
+      "You'll see this once per installed version, including after each update.",
+    ],
+  },
+  {
+    title: "Moving to a new Mac, or off an old one",
+    body: [
+      "Open the companion on the Mac you're leaving and choose <strong>Deactivate</strong>, then activate on the new one. The slot frees as soon as the old Mac next connects — usually seconds.",
+      "Deactivated by mistake? Press <strong>Undo</strong>. It works right up until that Mac connects and acts on it.",
+      "Can't get to the old Mac — lost, stolen, sold or dead? Sign in on <a href='/account'>your account page</a> and use <strong>Release slot now</strong>. That frees the slot immediately without needing the machine.",
+    ],
+  },
+  {
+    title: "Typing has stopped working",
+    body: [
+      "Open the AksharaIME menu from the menu bar. It always states which of these it is, so you don't have to guess.",
+      "<strong>Licence needs renewing</strong> — this Mac has been offline longer than its lease. Connect to the internet and it renews itself; there's a <strong>Check licence now</strong> item if you'd rather not wait.",
+      "<strong>Not activated</strong> — open the companion and press <strong>Activate this Mac</strong>.",
+      "<strong>Deactivated</strong> — the licence was released from another device. Re-activate from the companion and it resumes straight away.",
+    ],
+  },
+  {
+    title: "A word comes out wrong",
+    body: [
+      "Try it in the <a href='/#try'>demo</a> first — it runs the exact same engine the app does, so if the demo gets it right and your Mac doesn't, they're on different versions and updating will fix it.",
+      "If the demo gets it wrong too, that's a bug in the scheme and worth telling us about. Send the letters you typed and what you expected — that's enough to reproduce it.",
+    ],
+  },
+];
+---
+
+<Base
+  title="Help — AksharaIME"
+  description="Answers to the things that most commonly go wrong: the input source not appearing, the Gatekeeper warning, and moving your licence between Macs."
+>
+  <div class="wrap section help-page">
+    <p class="eyebrow">Help</p>
+    <h1>When something isn't working</h1>
+    <p class="lede help-lede">
+      Five things account for nearly everything that goes wrong. If none of them match,
+      <a href="mailto:om.chavan501@gmail.com?subject=AksharaIME%20help">email us</a> — a real
+      person reads it.
+    </p>
+
+    {groups.map((g) => (
+      <section class="help-item">
+        <h2>{g.title}</h2>
+        {g.body.map((p) => <p set:html={p} />)}
+      </section>
+    ))}
+
+    <section class="help-item">
+      <h2>Still stuck</h2>
+      <p>
+        <a href="mailto:om.chavan501@gmail.com?subject=AksharaIME%20help">Email us</a>. Say
+        which macOS version you're on and what the AksharaIME menu says — those two things
+        answer most of what we'd otherwise have to ask.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<style is:global>
+  .help-page { max-width: 46rem; }
+  .help-lede { margin-bottom: var(--space-12); }
+
+  .help-item { margin-bottom: var(--space-12); }
+  .help-item h2 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-4);
+  }
+  .help-item p {
+    color: var(--text-muted);
+    margin-bottom: var(--space-3);
+    max-width: var(--measure);
+  }
+  .help-item p:last-child { margin-bottom: 0; }
+  .help-item strong { color: var(--text); font-weight: 600; }
+</style>

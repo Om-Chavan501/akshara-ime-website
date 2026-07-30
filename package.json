@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "verify:examples": "node scripts/verify-examples.mjs",
-    "verify:tokens": "node scripts/verify-tokens.mjs"
+    "verify:tokens": "node scripts/verify-tokens.mjs",
+    "fetch:installer": "node scripts/fetch-installer.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.0",

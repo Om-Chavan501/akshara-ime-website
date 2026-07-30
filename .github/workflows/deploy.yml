@@ -36,6 +36,11 @@ jobs:
       # can ship. This is what would have caught `aamhii` and `maraaThii` automatically
       # instead of by review.
       - run: npm run verify:examples
+      # Pulls the released .pkg into public/download/ so the site serves it from its own
+      # domain rather than linking a personal GitHub repo. Fails the deploy if it can't --
+      # publishing a page whose only download link 404s is worse than not publishing, because
+      # the page looks entirely fine.
+      - run: npm run fetch:installer
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
