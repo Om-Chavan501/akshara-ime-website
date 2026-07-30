@@ -55,6 +55,12 @@ interface Overview {
   recent_actions: (HistoryEntry & { target_email: string | null })[];
 }
 
+interface TrialDevice {
+  fingerprint: string;
+  started_at: string;
+  license_id: string;
+}
+
 interface LookupResult {
   found: boolean;
   reason?: string;
@@ -63,6 +69,7 @@ interface LookupResult {
   licenses: License[];
   devices: Device[];
   orders: Order[];
+  trial_devices: TrialDevice[];
   history: HistoryEntry[];
 }
 
@@ -466,6 +473,28 @@ export default function AdminConsole() {
                 })}>
                 {busy === "resend" ? "Sending…" : "Resend purchase email"}
               </button>
+              {" "}
+              <button
+                className="btn btn-ghost btn-sm"
+                disabled={busy === "grant"}
+                onClick={() => setConfirming({
+                  key: "grant",
+                  title: "Grant a trial",
+                  consequence:
+                    "Gives this account a free trial, or extends one it already has by the " +
+                    "number of days below. It does not create a second licence. " +
+                    "Note this doesn't override the one-trial-per-Mac limit — if their Mac " +
+                    "has already trialled, it still needs a device release to activate.",
+                  confirmLabel: "Grant it",
+                  field: { label: "Days", initial: "5", hint: "Between 1 and 90." },
+                  success: "Trial granted.",
+                  payload: (value, reason) => ({
+                    action: "grant_trial", user_id: result.user_id,
+                    days: Number(value), reason,
+                  }),
+                })}>
+                {busy === "grant" ? "Granting…" : "Grant a trial"}
+              </button>
             </section>
 
             {/* ---- licences ---- */}
@@ -496,6 +525,18 @@ export default function AdminConsole() {
                   <p className="lic-slots">
                     <strong>{used}</strong> of <strong>{lic.max_devices}</strong> device
                     slots in use
+                    {lic.expires_at && (() => {
+                      const ends = new Date(lic.expires_at);
+                      const over = ends.getTime() < Date.now();
+                      return (
+                        <>
+                          <Sep />
+                          <span style={{ color: over ? "var(--danger)" : "inherit" }}>
+                            {over ? "expired " : "expires "}{fmt(lic.expires_at)}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </p>
 
                   <div className="adm-actions">
@@ -617,6 +658,27 @@ export default function AdminConsole() {
                 </section>
               );
             })}
+
+            {/* ---- trials ---- */}
+            {result.trial_devices.length > 0 && (
+              <>
+                <h2 className="adm-section-title">Trials used</h2>
+                <section className="adm-card">
+                  <ul className="plain">
+                    {result.trial_devices.map((t) => (
+                      <li className="hist" key={t.fingerprint}>
+                        <div>
+                          {/* Truncated: the full hash is never useful to read, and the point
+                              is only that this Mac has had its one trial. */}
+                          <strong className="mono">{t.fingerprint.slice(0, 16)}…</strong>
+                          <p className="muted small">Started {fmt(t.started_at)}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </>
+            )}
 
             {/* ---- orders ---- */}
             <h2 className="adm-section-title">Orders</h2>
