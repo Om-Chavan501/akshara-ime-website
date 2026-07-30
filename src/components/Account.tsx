@@ -144,6 +144,22 @@ export default function Account() {
     loadLicense();
   }
 
+  /// Undoes a deactivation the target Mac hasn't acted on yet (migration 0011).
+  async function cancelDeactivation(d: Device) {
+    setError(null); setNotice(null);
+    const { error } = await supabase.rpc("cancel_deactivation", { p_device_id: d.id });
+    if (error) {
+      // The window closes on its own, so the failure is expected rather than exceptional:
+      // that Mac connected and acted on the deactivation between the click and the undo.
+      return setError(
+        `${d.name ?? "That Mac"} has already stopped — it connected before you undid this. ` +
+        `Activate it again from that Mac to carry on using it.`
+      );
+    }
+    setNotice(`${d.name ?? "That Mac"} is active again — the deactivation was undone in time.`);
+    loadLicense();
+  }
+
   async function forceRelease(d: Device) {
     if (!confirm(
       `Release ${d.name ?? "this Mac"}'s slot immediately?\n\n` +
@@ -334,7 +350,7 @@ export default function Account() {
                             <strong>{d.name ?? "Unnamed Mac"}</strong>
                             <p className="muted small dev-state">
                               {released ? "Slot released"
-                                : deact && active ? `Deactivated — slot frees when its licence lease expires`
+                                : deact && active ? `Deactivated — stops when that Mac next connects. Undo works until then.`
                                 : deact ? "Deactivated"
                                 : active ? "Active" : "Lease expired"}
                               {d.last_checkin_at && ` · last seen ${relative(d.last_checkin_at)}`}
@@ -345,6 +361,13 @@ export default function Account() {
                           {!deact && !released && (
                             <button className="btn btn-ghost btn-sm"
                                     onClick={() => deactivate(d)}>Deactivate</button>
+                          )}
+                          {/* Undo, not a confirm-before-deactivating: the action really is
+                              reversible until that Mac connects, and confirmation prompts
+                              only teach people to click through them. */}
+                          {deact && !released && !d.revoked_confirmed_at && (
+                            <button className="btn btn-ghost btn-sm"
+                                    onClick={() => cancelDeactivation(d)}>Undo</button>
                           )}
                           {deact && active && !released && (
                             <button className="btn btn-sm danger-btn"
