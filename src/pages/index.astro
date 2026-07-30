@@ -4,7 +4,7 @@ import Wordmark from "../components/Wordmark.astro";
 import ImeExplainer from "../components/ImeExplainer.tsx";
 import TryIt from "../components/TryIt.tsx";
 import HeroDemo from "../components/HeroDemo.tsx";
-import Reveal from "../components/Reveal.tsx";
+import Reveal from "../components/Reveal.astro";
 import Comparison from "../components/Comparison.tsx";
 
 // The installer lives on GitHub Releases. Kept as a named constant so the version in
@@ -45,7 +45,7 @@ const examples = [
           <a class="btn btn-ghost" href="#try">Try it first</a>
         </div>
         <p class="small muted hero-note">
-          One-time purchase · macOS 13+ · Apple Silicon and Intel
+          One-time purchase · macOS 13+ · Apple Silicon and Intel · Early access
         </p>
       </div>
       <div class="hero-visual">
@@ -59,7 +59,7 @@ const examples = [
        product type is "Interactive Demo + Feature-Rich", and the demo IS the argument. -->
   <section class="bleed bleed-accent" id="try">
     <div class="wrap section">
-    <Reveal client:visible>
+    <Reveal>
       <p class="eyebrow">Try it right now</p>
       <h2 class="try-title">Type something. Watch it convert.</h2>
       <p class="lede try-lede">
@@ -73,7 +73,7 @@ const examples = [
 
   <!-- ================= What you type → what you get ================= -->
   <section class="wrap section" id="how">
-    <Reveal client:visible>
+    <Reveal>
       <p class="eyebrow">How it works</p>
       <h2>Phonetic, not positional.</h2>
     </Reveal>
@@ -85,10 +85,10 @@ const examples = [
 
     <ul class="examples">
       {examples.map(({ typed, got }, i) => (
-        <Reveal as="li" index={i} client:visible class="example">
+        <Reveal as="li" index={i} class="example">
           <code>{typed}</code>
           <span class="arrow" aria-hidden="true">→</span>
-          <span class="deva result">{got}</span>
+          <span class="deva result" lang="mr">{got}</span>
         </Reveal>
       ))}
     </ul>
@@ -104,22 +104,23 @@ const examples = [
        suggestion-based transliteration reliably gets wrong. -->
   <section class="bleed bleed-sunken">
     <div class="wrap section">
-      <Reveal client:visible>
+      <Reveal>
         <p class="eyebrow">Why not the built-in options</p>
         <h2>One word, three approaches.</h2>
         <p class="lede section-lede">
-          वाङ्मय — a perfectly ordinary Marathi word with a conjunct in the middle. Here's
+          <span lang="mr">वाङ्मय</span> — a perfectly ordinary Marathi word with a conjunct in
+          the middle. Here's
           what each way of typing it actually gives you.
         </p>
       </Reveal>
-      <Comparison client:visible />
+      <Comparison />
     </div>
   </section>
 
   <!-- ================= Pricing ================= -->
   <section class="bleed" id="pricing">
     <div class="wrap section">
-    <Reveal client:visible>
+    <Reveal>
       <p class="eyebrow">Pricing</p>
       <h2>Buy once. It stays yours.</h2>
     </Reveal>
@@ -130,7 +131,7 @@ const examples = [
 
     <div class="pricing-grid">
       {tiers.map(({ devices, inr, usd }, i) => (
-        <Reveal index={i} client:visible class={`tier-card${devices === 2 ? " is-popular" : ""}`}>
+        <Reveal index={i} class={`tier-card${devices === 2 ? " is-popular" : ""}`}>
           <a href="/account.html" class="tier-link">
             {devices === 2 && <span class="tier-badge">Laptop + desktop</span>}
             <span class="tier-count">{devices} {devices === 1 ? "Mac" : "Macs"}</span>
@@ -145,13 +146,16 @@ const examples = [
       Prices include tax. You'll create an account before paying, so your licence is attached
       to an address you've confirmed — no lost purchases from a mistyped email. Need more
       later? Buy a bigger tier and we raise your existing licence rather than starting a new one.
+      This is an early-access build and it isn't notarised by Apple yet, so installing takes
+      one extra step — said here rather than left for you to find in the Terms afterwards.
+      If it isn't for you, the 14-day refund is no-questions.
     </p>
     </div>
   </section>
 
   <!-- ================= Install ================= -->
   <section class="wrap section" id="install">
-    <Reveal client:visible>
+    <Reveal>
       <p class="eyebrow">Installing</p>
       <h2>Five minutes, one restart.</h2>
     </Reveal>

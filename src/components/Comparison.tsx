@@ -1,4 +1,3 @@
-import { motion, useReducedMotion } from "motion/react";
 
 /**
  * The strongest argument on the page: a word the alternatives actually get wrong.
@@ -42,18 +41,18 @@ const APPROACHES = [
 ];
 
 export default function Comparison() {
-  const reduced = useReducedMotion();
 
   return (
     <div className="cmp">
       {APPROACHES.map((a, i) => (
-        <motion.div
+        // Reveals via the CSS mechanism (see Reveal.astro), not Motion. As a Motion island
+        // this section's three cards were server-rendered at `opacity: 0` and stayed blank
+        // whenever JS didn't arrive — on the strongest argument on the page. Plain markup also
+        // means it needs no client directive at all, so it now ships zero JavaScript.
+        <div
           key={a.label}
-          className={`cmp-card is-${a.verdict}`}
-          initial={reduced ? false : { opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-          transition={{ duration: 0.44, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className={`cmp-card is-${a.verdict} reveal`}
+          style={{ ["--reveal-i" as string]: i }}
         >
           <div className="cmp-head">
             <span className="cmp-how">{a.how}</span>
@@ -69,7 +68,7 @@ export default function Comparison() {
             <span className="cmp-arrow" aria-hidden="true">→</span>
             <div className="cmp-results">
               {a.results.map((r) => (
-                <span key={r} className="cmp-result deva">{r}</span>
+                <span key={r} className="cmp-result deva" lang="mr">{r}</span>
               ))}
               {a.verdict === "wrong" && <span className="cmp-more">…and more</span>}
             </div>
@@ -82,7 +81,7 @@ export default function Comparison() {
               : a.verdict === "learn" ? "Weeks to learn"
               : "Right, first time"}
           </span>
-        </motion.div>
+        </div>
       ))}
 
       <style>{`

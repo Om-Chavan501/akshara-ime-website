@@ -94,7 +94,7 @@ export default function HeroDemo() {
 
           <div className="hd-row">
             <span className="hd-label">you get</span>
-            <span className="hd-deva deva">
+            <span className="hd-deva deva" lang="mr">
               {/* NOT animated per keystroke. It was keyed on `deva`, so a fresh element
                   remounted on every single character (every 155ms), restarting its fade-in
                   each time -- that constant restart WAS the flicker being reported, not a

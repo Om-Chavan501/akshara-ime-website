@@ -103,7 +103,7 @@ export default function TryIt() {
         {/* aria-live so a screen-reader user hears the result without moving focus out of
             the input they're still typing in. */}
         <div
-          className="tryit-result deva"
+          className="tryit-result deva" lang="mr"
           role="status"
           aria-live="polite"
           aria-labelledby="tryit-out-label"

@@ -21,6 +21,13 @@ type Phase = "loading" | "email" | "code" | "ready";
 declare global { interface Window { Paddle?: any } }
 
 export default function Account() {
+  // Drop the server-rendered fallback (see account.astro). Done on mount rather than with
+  // CSS so it also disappears when the island is slow rather than absent — the fallback's
+  // whole job is to be the thing you see when this component isn't there yet.
+  useEffect(() => {
+    document.getElementById("acct-fallback")?.remove();
+  }, []);
+
   const reduced = useReducedMotion();
   const [phase, setPhase] = useState<Phase>("loading");
   const [session, setSession] = useState<Session | null>(null);

@@ -4,8 +4,30 @@ import Account from "../components/Account.tsx";
 ---
 <Base title="Your account — AksharaIME" noindex={true}>
   <div class="wrap section acct-page">
-    {/* client:only — this page is entirely session-dependent, so server-rendering it would
-        flash a signed-out state before hydration corrects it. */}
+    {/* Server-rendered fallback, removed by the island the moment it mounts.
+
+        This page is `client:only` because it is entirely session-dependent — server-rendering
+        it would flash a signed-out state before hydration corrects it. The cost was that
+        without JS the page was nav, footer and nothing in between, and *every* call to action
+        on the site lands here: the hero button, all five pricing tiers, and the nav sign-in.
+        A buyer with a blocked or failed script saw a blank page at the exact moment they were
+        trying to pay.
+
+        The honest fallback is not a fake sign-in form — this genuinely needs JavaScript to do
+        anything. It is a heading that says where you are, an explanation, and a way to reach a
+        human that doesn't depend on the thing that just failed. */}
+    <div id="acct-fallback">
+      <h1>Your account</h1>
+      <p class="lede">
+        Sign in to buy a licence, activate a Mac, or manage the devices you've already set up.
+      </p>
+      <p class="muted">
+        This page needs JavaScript to reach your account securely. If it hasn't loaded in a
+        few seconds, try reloading — or
+        <a href="mailto:om.chavan501@gmail.com?subject=AksharaIME%20account">email us</a>
+        and we'll sort it out by hand.
+      </p>
+    </div>
     <Account client:only="react" />
   </div>
 </Base>
