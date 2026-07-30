@@ -14,13 +14,9 @@ import Comparison from "../components/Comparison.tsx";
 // of being ignored cross-origin and leaving a blank tab behind.
 const DOWNLOAD_URL = "/download/AksharaIME-Installer.pkg";
 
-const tiers = [
-  { devices: 1, inr: "₹1,499", usd: "$17.99" },
-  { devices: 2, inr: "₹2,499", usd: "$29.99" },
-  { devices: 3, inr: "₹3,499", usd: "$41.99" },
-  { devices: 4, inr: "₹4,499", usd: "$53.99" },
-  { devices: 5, inr: "₹5,499", usd: "$65.99" },
-];
+// One table, shared with the account page. Two copies is how the USD figures went stale
+// here while the account page and Paddle had moved on.
+import { TIERS as tiers, PRICE_IDS, SUPABASE_URL, SUPABASE_ANON_KEY } from "../lib/supabase";
 
 const examples = [
   { typed: "namaskaara", got: "नमस्कार" },
@@ -137,12 +133,49 @@ const examples = [
           <a href="/account.html" class="tier-link">
             {devices === 2 && <span class="tier-badge">Laptop + desktop</span>}
             <span class="tier-count">{devices} {devices === 1 ? "Mac" : "Macs"}</span>
-            <span class="tier-price">{inr}</span>
+            <span class="tier-price" data-price-id={PRICE_IDS[devices]}>{inr}</span>
             <span class="tier-usd muted small">or {usd}</span>
           </a>
         </Reveal>
       ))}
     </div>
+
+    {/* Replaces the rendered prices with what this visitor will actually be charged.
+
+        Paddle is configured with a USD base and an India-only INR override, so a visitor in
+        the US was being shown rupees prominently and then charged dollars — the page and the
+        checkout disagreeing, which is the one thing a pricing table must never do. Hardcoding
+        guarantees that drift: these figures said $17.99 for a while after Paddle had moved to
+        $29.
+
+        Progressive enhancement on purpose. The prices above are real, server-rendered and
+        correct for India, so a failed fetch or no JavaScript leaves a working pricing table
+        rather than an empty one — the same rule as the reveals. */}
+    <script is:inline define:vars={{ endpoint: `${SUPABASE_URL}/functions/v1/price-preview`, anon: SUPABASE_ANON_KEY }}>
+      fetch(endpoint, {
+        method: "POST",
+        headers: { apikey: anon, Authorization: "Bearer " + anon, "Content-Type": "application/json" },
+        body: "{}",
+      })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.items) return;
+          var localised = false;
+          data.items.forEach(function (item) {
+            var el = document.querySelector('[data-price-id="' + item.price_id + '"]');
+            if (!el || !item.total) return;
+            el.textContent = item.total;
+            localised = true;
+          });
+          // The "or $X" line is a second currency for people who aren't being quoted it. Once
+          // the real one is shown, it is just noise — and for a visitor outside India it was
+          // actively misleading, since the rupee figure was never going to be charged.
+          if (localised) {
+            document.querySelectorAll(".tier-usd").forEach(function (el) { el.remove(); });
+          }
+        })
+        .catch(function () { /* keep the server-rendered prices */ });
+    </script>
 
     <p class="small muted pricing-note">
       Prices include tax. You'll create an account before paying, so your licence is attached

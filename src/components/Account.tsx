@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { Session } from "@supabase/supabase-js";
 import {
-  supabase, PADDLE_CLIENT_TOKEN, PRICE_IDS, TIERS,
+  supabase, SUPABASE_URL, SUPABASE_ANON_KEY, PADDLE_CLIENT_TOKEN, PRICE_IDS, TIERS,
   holdsSlot, type License, type Device,
 } from "../lib/supabase";
 
@@ -21,6 +21,32 @@ type Phase = "loading" | "email" | "code" | "ready";
 declare global { interface Window { Paddle?: any } }
 
 export default function Account() {
+  // What this visitor will actually be charged, keyed by price id. Paddle is USD-based with
+  // an India-only INR override, so showing "₹1,499 / $29" to everyone means the buy button
+  // and the checkout quote different things — on the page where money changes hands.
+  const [prices, setPrices] = useState<Record<string, string>>({});
+  useEffect(() => {
+    fetch(`${SUPABASE_URL}/functions/v1/price-preview`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d?.items) return;
+        const next: Record<string, string> = {};
+        for (const i of d.items) if (i.price_id && i.total) next[i.price_id] = i.total;
+        setPrices(next);
+      })
+      // Falls back to the TIERS figures, which are real prices — just not necessarily this
+      // visitor's currency.
+      .catch(() => {});
+  }, []);
+
   // Drop the server-rendered fallback (see account.astro). Done on mount rather than with
   // CSS so it also disappears when the island is slow rather than absent — the fallback's
   // whole job is to be the thing you see when this component isn't there yet.
@@ -287,17 +313,23 @@ export default function Account() {
                     One-time purchase. You can add more devices later without buying again.
                   </p>
                   <ul className="tierlist">
-                    {TIERS.map(({ devices: n, inr, usd }) => (
-                      <li key={n}>
-                        <button className="tierbtn" onClick={() => buy(n)}>
-                          <span>{n} {n === 1 ? "Mac" : "Macs"}</span>
-                          <span className="tierprice">
-                            <strong>{inr}</strong>
-                            <span className="muted small">&nbsp;/&nbsp;{usd}</span>
-                          </span>
-                        </button>
-                      </li>
-                    ))}
+                    {TIERS.map(({ devices: n, inr, usd }) => {
+                      const localised = prices[PRICE_IDS[n]];
+                      return (
+                        <li key={n}>
+                          <button className="tierbtn" onClick={() => buy(n)}>
+                            <span>{n} {n === 1 ? "Mac" : "Macs"}</span>
+                            <span className="tierprice">
+                              <strong>{localised ?? inr}</strong>
+                              {/* The second currency is only useful before we know which one
+                                  applies. Once we do, it is noise at best and misleading at
+                                  worst. */}
+                              {!localised && <span className="muted small">&nbsp;/&nbsp;{usd}</span>}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
                   <p className="hint" style={{ marginTop: "var(--space-4)" }}>
                     Prices include tax. Checkout is handled by Paddle, and your licence will be

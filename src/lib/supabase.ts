@@ -24,12 +24,26 @@ export const PRICE_IDS: Record<number, string> = {
   5: "pri_01kycxfvx5c3jrs3dbezg9f3be",
 };
 
+/**
+ * The price ladder, as a *fallback only*.
+ *
+ * Paddle is the source of truth: the prices are USD-based with an India-only INR override, so
+ * what a visitor pays depends on where they are. These figures are what renders before the
+ * localised prices arrive (and if they never do), which is why they exist at all — a pricing
+ * table that is blank without JavaScript is not an improvement on one that is slightly stale.
+ *
+ * They were stale, and that is the hazard worth naming: this list said $17.99 for a while
+ * after Paddle had been raised to $29, so the page advertised one number and the checkout
+ * charged another. Anything hardcoded here must be re-checked against Paddle when prices
+ * move — `backend/supabase/functions/price-preview` is what makes the live page correct
+ * regardless.
+ */
 export const TIERS = [
-  { devices: 1, inr: "₹1,499", usd: "$17.99" },
-  { devices: 2, inr: "₹2,499", usd: "$29.99" },
-  { devices: 3, inr: "₹3,499", usd: "$41.99" },
-  { devices: 4, inr: "₹4,499", usd: "$53.99" },
-  { devices: 5, inr: "₹5,499", usd: "$65.99" },
+  { devices: 1, inr: "₹1,499", usd: "$29" },
+  { devices: 2, inr: "₹2,499", usd: "$49" },
+  { devices: 3, inr: "₹3,499", usd: "$69" },
+  { devices: 4, inr: "₹4,499", usd: "$89" },
+  { devices: 5, inr: "₹5,499", usd: "$109" },
 ];
 
 export interface License {
