@@ -65,6 +65,7 @@ export default function Account() {
   const [cooldown, setCooldown] = useState(0);
 
   const [license, setLicense] = useState<License | null>(null);
+  const [startingTrial, setStartingTrial] = useState(false);
   const [devices, setDevices] = useState<Device[]>([]);
   const [loadingLicense, setLoadingLicense] = useState(false);
 
@@ -181,6 +182,28 @@ export default function Account() {
   }
 
   /// Undoes a deactivation the target Mac hasn't acted on yet (migration 0011).
+  /// Creates the trial licence. Activating a Mac on it is a separate step that only the
+  /// companion can do — the per-Mac limit is keyed on a hardware fingerprint a browser cannot
+  /// see. So this can succeed and the *activation* still be refused, for someone whose Mac has
+  /// already trialled. That is the only broken path, it is exactly the person the limit exists
+  /// to stop, and the companion says so plainly.
+  async function startTrial() {
+    setStartingTrial(true); setError(null); setNotice(null);
+    const { error } = await supabase.rpc("start_trial");
+    setStartingTrial(false);
+    if (error) {
+      setError(
+        /already has a licence/i.test(error.message)
+          ? "This account already has a licence — reload to see it."
+          : "Couldn't start the trial. Please try again, or email support@akshara-ime.com.",
+      );
+      return;
+    }
+    setNotice("Trial started. Open the AksharaIME Companion on your Mac and click "
+              + "\u201CActivate this Mac\u201D to begin typing.");
+    loadLicense();
+  }
+
   async function cancelDeactivation(d: Device) {
     setError(null); setNotice(null);
     const { error } = await supabase.rpc("cancel_deactivation", { p_device_id: d.id });
@@ -310,21 +333,26 @@ export default function Account() {
 
             {!loadingLicense && !license && (
               <>
-                {/* The trial is started from the companion, not here, and that is a constraint
-                    rather than an oversight: a trial is one per *Mac*, and only the native app
-                    can see which Mac it is running on. A browser cannot, so offering the
-                    button here would mean offering a trial that might be refused at the last
-                    step — after the person had already committed to it. */}
+                {/* Creating the trial is keyed on the account, which a browser can do. Only
+                    *activating a Mac* on it needs the hardware fingerprint, which a browser
+                    cannot see — so the per-Mac limit is checked later, at activation. Someone
+                    re-trialling the same Mac therefore gets the licence and is refused when
+                    they activate. That's the one imperfect path, it's exactly the person the
+                    limit exists to stop, and the companion explains it. Not a reason to hide
+                    the trial from everyone who is deciding right now. */}
                 <div className="acct-card acct-trial">
-                  <h2>Want to try it first?</h2>
+                  <h2>Try it free for five days</h2>
                   <p className="muted small">
-                    There's a free five-day trial — no card, nothing to cancel. Install
-                    AksharaIME, open the companion app and it's one click. One trial per Mac.
+                    No card, nothing to cancel. Five days is long enough to find out whether it
+                    fits how you type, which is the only question that matters. One trial per Mac.
                   </p>
-                  <a className="btn btn-ghost btn-sm" href="/#install"
-                     style={{ marginTop: "var(--space-4)", display: "inline-flex" }}>
-                    How to install
-                  </a>
+                  <div style={{ display: "flex", gap: "var(--space-3)", marginTop: "var(--space-4)", flexWrap: "wrap" }}>
+                    <button className="btn btn-primary btn-sm" onClick={startTrial}
+                            disabled={startingTrial}>
+                      {startingTrial ? "Starting…" : "Start free trial"}
+                    </button>
+                    <a className="btn btn-ghost btn-sm" href="/#install">How to install</a>
+                  </div>
                 </div>
 
                 <div className="acct-card">
