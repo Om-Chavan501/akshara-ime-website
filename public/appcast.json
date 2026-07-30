@@ -1,6 +1,6 @@
 {
-  "latest_version": "0.2",
-  "download_url": "https://github.com/Om-Chavan501/akshara-ime-website/releases/download/v0.2/AksharaIME-Installer.pkg",
+  "latest_version": "0.3",
+  "download_url": "https://github.com/Om-Chavan501/akshara-ime-website/releases/download/v0.3/AksharaIME-Installer.pkg",
   "release_notes": "https://akshara-ime.com/#install-guide",
   "minimum_macos": "13.0"
 }
