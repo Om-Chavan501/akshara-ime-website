@@ -122,9 +122,15 @@ const examples = [
       <p class="eyebrow">Pricing</p>
       <h2>Buy once. It stays yours.</h2>
     </Reveal>
-    <p class="lede" style="margin-bottom: var(--space-8);">
+    <p class="lede" style="margin-bottom: var(--space-4);">
       No subscription. Pay for the number of Macs you want to use it on, and add more later
       if you need to.
+    </p>
+    {/* Before the prices rather than after: someone who isn't sure yet should meet the trial
+        while they are still deciding, not once they have read a number and moved on. No button
+        here — starting one needs an account, so it lives on /account. */}
+    <p class="trial-line">
+      Not sure yet? <a href="/account">Try it free for five days</a> — no card, nothing to cancel.
     </p>
 
     <div class="pricing-grid">
@@ -438,6 +444,9 @@ const examples = [
   .tier-usd { margin-top: -2px; }
 
   .pricing-note { margin-top: var(--space-8); max-width: 60ch; }
+
+  .trial-line { margin-bottom: var(--space-8); color: var(--text-muted); }
+  .trial-line a { color: var(--accent); font-weight: 600; }
 
   /* The download sits between the lede and the numbered steps, so it reads as step zero
      without being numbered — it isn't something you do on your Mac, it's how you get there. */
