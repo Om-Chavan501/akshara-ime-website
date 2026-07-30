@@ -339,7 +339,7 @@ export default function Account() {
                 </div>
 
                 <p className="muted small" style={{ marginTop: "var(--space-6)" }}>
-                  Already bought under a different email? <a href="mailto:om.chavan501@gmail.com">
+                  Already bought under a different email? <a href="mailto:support@akshara-ime.com">
                   Tell us</a> and we'll move the licence over.
                 </p>
               </>
