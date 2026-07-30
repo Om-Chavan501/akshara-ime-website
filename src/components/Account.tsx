@@ -332,7 +332,8 @@ export default function Account() {
                     })}
                   </ul>
                   <p className="hint" style={{ marginTop: "var(--space-4)" }}>
-                    Prices include tax. Checkout is handled by Paddle, and your licence will be
+                    In India the price includes GST; elsewhere any local sales tax is added
+                    at checkout. Checkout is handled by Paddle, and your licence will be
                     attached to <strong>{session.user.email}</strong>.
                   </p>
                 </div>
