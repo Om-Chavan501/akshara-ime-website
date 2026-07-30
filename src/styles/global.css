@@ -336,3 +336,39 @@ body, .site-header, .site-footer, .card, .btn, .bg-fixed,
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------------------------------
+ * Scroll reveals.
+ *
+ * The load-bearing rule: content is visible by default, and only script may hide it. The
+ * `reveals` class is added by the same inline snippet that installs the observer, so a
+ * blocked, failed or unsupported script means nothing is ever hidden — the page renders in
+ * full, just without the animation.
+ *
+ * This replaced a React + Motion island whose `opacity: 0` was server-rendered into the HTML
+ * and only undone after hydration. Nineteen wrappers shipped invisible; the pricing grid, the
+ * comparison and the install steps were blank without JS.
+ * ------------------------------------------------------------------------------------- */
+/* Declared here, not left to the `var(…, 0)` fallback: Reveal.astro sets it inline per
+   element, and a property that only ever exists as an inline override is invisible to
+   anything reading the stylesheet — including the build's own token check, which caught it. */
+.reveal { --reveal-i: 0; }
+
+html.reveals .reveal {
+  opacity: 0;
+  transform: translateY(16px) scale(0.985);
+}
+html.reveals .reveal.is-in {
+  opacity: 1;
+  transform: none;
+  /* Same duration and expo-out curve the Motion version used, so this is visually identical. */
+  transition: opacity 0.42s var(--ease-out), transform 0.42s var(--ease-out);
+  transition-delay: calc(var(--reveal-i, 0) * 60ms);
+}
+
+/* Reduced motion means no transform and no delay — not a faster animation. Someone who gets
+   motion sick from a 420ms slide gets motion sick from a 100ms one. */
+@media (prefers-reduced-motion: reduce) {
+  html.reveals .reveal { opacity: 0; transform: none; }
+  html.reveals .reveal.is-in { transition: opacity 0.2s linear; transition-delay: 0s; }
+}

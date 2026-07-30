@@ -1,0 +1,32 @@
+---
+/**
+ * Scroll-triggered reveal.
+ *
+ * Deliberately **not** a framework island any more. It was a React + Motion component with
+ * `client:visible`, which meant the entrance state (`opacity: 0`) was server-rendered into the
+ * HTML and only undone once the bundle loaded *and* the observer fired. Nineteen wrappers
+ * shipped invisible: if JS was blocked, failed, or simply slow, the pricing grid, the
+ * comparison and the install steps were permanently blank on an otherwise-working page.
+ *
+ * The rule that fixes it is simple: **content is visible by default, and only script may
+ * hide it.** The `reveals` class that enables the hidden state is added by the same inline
+ * script that installs the observer (see Base.astro), so if that script never runs — or
+ * throws, or the browser lacks IntersectionObserver — nothing is ever hidden and the page
+ * just works without animation.
+ *
+ * Motion's easing is reproduced exactly in CSS, so this looks identical while removing an
+ * island per section.
+ */
+interface Props {
+  /** Stagger position, for revealing a row of cards in sequence. */
+  index?: number;
+  class?: string;
+  as?: "div" | "section" | "li" | "article";
+}
+
+const { index = 0, class: className = "", as: Tag = "div" } = Astro.props;
+---
+
+<Tag class:list={["reveal", className]} style={index ? `--reveal-i:${index}` : undefined}>
+  <slot />
+</Tag>
