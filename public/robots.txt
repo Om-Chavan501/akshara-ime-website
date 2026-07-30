@@ -1,0 +1,15 @@
+# akshara-ime.com
+
+User-agent: *
+Allow: /
+
+# Both are noindex in their own markup as well. Repeated here because a crawler that never
+# fetches the page never sees the meta tag, and neither has any business in an index:
+# /account is a signed-in surface, /admin is the support console.
+Disallow: /account
+Disallow: /admin
+
+# Not secret -- the installer is deliberately ungated -- just not a search result.
+Disallow: /download/
+
+Sitemap: https://akshara-ime.com/sitemap.xml

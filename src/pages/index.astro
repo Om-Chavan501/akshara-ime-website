@@ -7,10 +7,12 @@ import HeroDemo from "../components/HeroDemo.tsx";
 import Reveal from "../components/Reveal.astro";
 import Comparison from "../components/Comparison.tsx";
 
-// The installer lives on GitHub Releases. Kept as a named constant so the version in
-// the path is changed in one place when a new build ships.
-const DOWNLOAD_URL =
-  "https://github.com/Om-Chavan501/akshara-ime-website/releases/download/v0.3/AksharaIME-Installer.pkg";
+// Served from our own domain. The deploy workflow pulls the released .pkg into
+// public/download/ (scripts/fetch-installer.mjs), picking the version from appcast.json --
+// the same file installed copies poll -- so the site cannot offer a different build from the
+// one it tells them to fetch. Same-origin also means the `download` attribute works, instead
+// of being ignored cross-origin and leaving a blank tab behind.
+const DOWNLOAD_URL = "/download/AksharaIME-Installer.pkg";
 
 const tiers = [
   { devices: 1, inr: "₹1,499", usd: "$17.99" },
